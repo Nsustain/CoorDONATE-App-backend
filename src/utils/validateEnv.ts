@@ -13,6 +13,7 @@ const validateEnv = () => {
     JWT_ACCESS_TOKEN_PUBLIC_KEY: str(),
     JWT_REFRESH_TOKEN_PRIVATE_KEY: str(),
     JWT_REFRESH_TOKEN_PUBLIC_KEY: str(),
+	SECURITY_KEYS_PATH: str()
   });
 };
 

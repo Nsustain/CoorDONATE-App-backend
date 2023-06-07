@@ -12,6 +12,8 @@ import { User } from '../entities/user.entity.ts';
 import { signJwt, verifyJwt } from '../utils/jwt.ts';
 import AppDataSource from '../config/ormconfig.ts';
 import UserSession from '../entities/user.session.ts';
+import UtilsProvider from '../di/utilProviders.ts';
+import { KeyFunction } from '../utils/keyFactory.ts';
 
 const cookiesOptions: CookieOptions = {
   httpOnly: true,
@@ -35,6 +37,8 @@ const refreshTokenCookieOptions: CookieOptions = {
   ),
   maxAge: config.get<number>('refreshTokenExpiresIn') * 60 * 1000,
 };
+
+
 
 // Register new user
 export const registerUserHandler = async (
@@ -124,7 +128,7 @@ export const refreshAccessTokenHandler = async (
     // Validate refresh token
     const decoded = verifyJwt<{ sub: string }>(
       refreshToken,
-      'refreshTokenPublicKey'
+      KeyFunction.refresh
     );
 
     if (!decoded) {
@@ -149,7 +153,7 @@ export const refreshAccessTokenHandler = async (
     }
 
     // Sign new access token
-    const accessToken = signJwt({ sub: user.id }, 'accessTokenPrivateKey', {
+    const accessToken = signJwt({ sub: user.id }, KeyFunction.access, {
       expiresIn: `${config.get<number>('accessTokenExpiresIn')}m`,
     });
 

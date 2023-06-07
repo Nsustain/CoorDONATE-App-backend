@@ -1,18 +1,17 @@
 import jwt, { SignOptions } from 'jsonwebtoken';
-import config from 'config';
+import UtilsProvider from '../di/utilProviders';
+import KeyFactory, { KeyFunction, KeyName } from './keyFactory';
+
+
 
 // Sign Access or Refresh Token
 export const signJwt = (
   payload: Object,
-  keyName: 'accessTokenPrivateKey' | 'refreshTokenPrivateKey',
+  fun: KeyFunction,
   options: SignOptions
 ) => {
-  const privateKey = Buffer.from(
-    config.get<string>(keyName),
-    'base64'
-  ).toString('ascii');
 
-  return jwt.sign(payload, privateKey, {
+  return jwt.sign(payload, UtilsProvider.provideKeyFactory().getKey(fun, KeyName.private), {
     ...(options && options),
     algorithm: 'RS256',
   });
@@ -22,13 +21,10 @@ export const signJwt = (
 
 export const verifyJwt = <T>(
   token: string,
-  keyName: 'accessTokenPublicKey' | 'refreshTokenPublicKey'
+  fun: KeyFunction
 ): T | null => {
   try {
-    const publicKey = Buffer.from(
-      config.get<string>(keyName),
-      'base64'
-    ).toString('ascii');
+    const publicKey = UtilsProvider.provideKeyFactory().getKey(fun, KeyName.public)
     const decoded = jwt.verify(token, publicKey) as T;
 
     return decoded;

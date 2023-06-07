@@ -2,6 +2,10 @@ export default {
   origin: 'http://localhost:3000',
   accessTokenExpiresIn: 15,
   refreshTokenExpiresIn: 60,
+
+
+
+  securityKeysPath: "SECURITY_KEYS_PATH"
   //   redisCacheExpiresIn: 60,
   //   emailFrom: 'aklile@a2sv.org',
 

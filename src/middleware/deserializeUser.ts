@@ -4,6 +4,7 @@ import AppError from '../utils/appError.ts';
 import { verifyJwt } from '../utils/jwt.ts';
 import AppDataSource from '../config/ormconfig.ts';
 import UserSession from '../entities/user.session.ts';
+import { KeyFunction } from '../utils/keyFactory.ts';
 
 const deserializeUser = async (
   req: Request,
@@ -30,7 +31,7 @@ const deserializeUser = async (
     // validate the access token
     const decoded = verifyJwt<{ sub: string }>(
       accessToken,
-      'accessTokenPublicKey'
+      KeyFunction.access
     );
 
     if (!decoded) {
