@@ -8,6 +8,7 @@ import authRouter from './routes/auth.routes.ts';
 import userRouter from './routes/user.routes.ts';
 import handle404 from './routes/404.routes.ts';
 import AppError from './utils/appError.ts';
+import validateEnv from './utils/validateEnv.ts';
 
 require('dotenv').config();
 
@@ -16,10 +17,10 @@ AppDataSource.initialize()
     console.log('database connected');
 
     // Validate enviroment variables exist
-
+    validateEnv();
     // start app
     const app = express();
-
+    // eslint-disable-next-line global-require
     // eslint-disable-next-line global-require
 
     // Body parser

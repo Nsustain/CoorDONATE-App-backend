@@ -19,6 +19,7 @@
     "cors": "^2.8.5",
     "dotenv": "^16.0.3",
     "dotenv-safe": "^8.2.0",
+    "envalid": "^7.3.1",
     "eslint-config-airbnb": "^19.0.4",
     "eslint-plugin-jsx-a11y": "^6.5.1",
     "eslint-plugin-react": "^7.28.0",
@@ -67,7 +68,7 @@
     ]
   },
   "scripts": {
-    "start": "node ./build/index.js",
+    "start": "ts-node-dev --respawn --transpile-only --exit-child src/index.ts",
     "build": "tsc -p .",
     "dev": "nodemon ./src/index.ts",
     "test": "jest",
