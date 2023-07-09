@@ -1,5 +1,7 @@
 import 'reflect-metadata';
 import { DataSource } from 'typeorm';
+import UserSession from '../entities/user.session.ts';
+import { User } from '../entities/user.entity.ts';
 
 const AppDataSource = new DataSource({
   type: 'postgres',
@@ -10,7 +12,7 @@ const AppDataSource = new DataSource({
   database: 'coordonate',
   synchronize: true,
   logging: true,
-  entities: [],
+  entities: [User, UserSession],
   subscribers: [],
   migrations: [],
 });
