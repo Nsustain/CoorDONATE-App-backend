@@ -48,7 +48,7 @@ const deserializeUser = async (
     }
 
     // Check if the user still exist
-    const user = await findUserById(JSON.parse(JSON.stringify(session)).id);
+    const user = await findUserById(session.userId);
 
     if (!user) {
       return next(new AppError(401, `Invalid token or session has expired`));

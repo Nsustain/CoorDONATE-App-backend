@@ -20,6 +20,8 @@ const cookiesOptions: CookieOptions = {
   sameSite: 'lax',
 };
 
+
+const userSessionRepository = AppDataSource.getRepository(UserSession);
 // if (process.env.NODE_ENV === 'production') cookiesOptions.secure = true;
 
 const accessTokenCookieOptions: CookieOptions = {
@@ -99,10 +101,20 @@ export const loginUserHandler = async (
       httpOnly: false,
     });
 
+    const session = new UserSession();
+    session.userId = user.id;
+    session.token = accessToken;
+    session.expiresAt = new Date(Date.now());
+    session.expiresAt.setMonth(session.expiresAt.getMonth() + 6)
+
+    await userSessionRepository.save(userSessionRepository.create(session));
+
+
     // send response
     res.status(200).json({
       status: 'success',
       accessToken,
+      refreshToken
     });
   } catch (err: any) {
     next(err);
