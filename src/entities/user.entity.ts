@@ -1,6 +1,7 @@
-import { Entity, Column, Index, BeforeInsert } from 'typeorm';
+import { Entity, Column, Index, BeforeInsert, ManyToOne, OneToMany } from 'typeorm';
 import bcrypt from 'bcryptjs';
 import Model from './model.entity.ts';
+import { Like, Post } from './post.entity.ts';
 
 // eslint-disable-next-line no-shadow
 export enum RoleEnumType {
@@ -32,6 +33,12 @@ export class User extends Model {
 
   @Column({ default: false })
   verified!: boolean;
+
+//   @OneToMany(() => Post, (post) => post.user)
+//   posts!: Post[]
+
+//   @OneToMany(() => Like, (like) => like.user)
+//   likedPosts!: Like[];
 
   @BeforeInsert()
   async hashPassword() {

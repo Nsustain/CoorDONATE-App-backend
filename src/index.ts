@@ -9,6 +9,7 @@ import userRouter from './routes/user.routes.ts';
 import handle404 from './routes/404.routes.ts';
 import AppError from './utils/appError.ts';
 import validateEnv from './utils/validateEnv.ts';
+import postRouter from './routes/post.routes.ts';
 
 require('dotenv').config();
 
@@ -43,6 +44,8 @@ AppDataSource.initialize()
     // ROUTES
     app.use('/api/auth', authRouter);
     app.use('/api/users', userRouter);
+	app.use("/api/post", postRouter);
+
 
     // UNHANDLED ROUTE
     app.all('*', handle404);
