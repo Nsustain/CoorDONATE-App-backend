@@ -17,9 +17,6 @@ AppDataSource.initialize()
   .then(async () => {
     console.log('database connected');
 
-    // Validate enviroment variables exist
-    validateEnv();
-    // start app
     const app = express();
     // eslint-disable-next-line global-require
     // eslint-disable-next-line global-require
