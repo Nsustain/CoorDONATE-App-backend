@@ -17,7 +17,7 @@ export class Post extends Model{
 	contentImages!: PostImage[]
 
 	@ManyToOne(() => User, )
-	user!: User;
+	postedBy!: User;
 	
 	@OneToMany(() => Comment, (comment) => comment.post)
 	comments!: Comment[];
