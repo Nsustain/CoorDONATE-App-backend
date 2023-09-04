@@ -12,4 +12,8 @@ export class Message extends Model {
 
     @OneToOne(() => User ,(user)=> user.email)
     receiver!: User
+
+    @Column("timestamp")
+    sentAt!: Date;
+
 }
