@@ -20,7 +20,7 @@ class PostController{
 				"contentImages",
 				"likes",
 				"comments",
-				"user"
+				"postedBy"
 			]
 		});
 		res.status(200).json(this.serializer.serializeMany(posts));
@@ -40,7 +40,7 @@ class PostController{
 		try{
 			await this.serializer.validate(req, res);
 			let post = this.serializer.deserialize(req.body);
-			post.user = res.locals.user;
+			post.postedBy = res.locals.user;
 			post = await this.createPost(post);
 			return res.status(201).json(this.serializer.serialize(post));
 		}

@@ -28,17 +28,14 @@ export class User extends Model {
   })
   role!: RoleEnumType.USER;
 
-  @Column({ default: 'default.png' })
-  photo!: string;
-
   @Column({ default: false })
   verified!: boolean;
 
-//   @OneToMany(() => Post, (post) => post.user)
-//   posts!: Post[]
+  @OneToMany(() => Post, (post) => post.postedBy)
+  posts!: Post[]
 
-//   @OneToMany(() => Like, (like) => like.user)
-//   likedPosts!: Like[];
+  @OneToMany(() => Like, (like) => like.user)
+  likedPosts!: Like[];
 
   @BeforeInsert()
   async hashPassword() {
