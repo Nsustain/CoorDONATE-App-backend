@@ -10,3 +10,5 @@ chatRouter.use(deserializeUser, requireUser);
 
 chatRouter.post('/create', chatController.create);
 chatRouter.get('/get:userId', getChatsByUser, chatController.getAllChats);
+
+export default chatRouter;
