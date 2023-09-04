@@ -1,7 +1,7 @@
 import express from "express";
 import deserializeUser from "../middleware/deserializeUser";
 import requireUser from "../middleware/requireUser";
-import { postController } from "../controllers/postController";
+import { postController } from "../controllers/post.controller";
 
 
 
