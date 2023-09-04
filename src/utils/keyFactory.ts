@@ -28,6 +28,7 @@ export default class KeyFactory{
 	}
 
 	public getKey(fun: KeyFunction, name: KeyName): string{
+		console.log("containerPath", this.containerPath)
 		return Buffer.from(fs.readFileSync(path.join(this.containerPath, this.generateKeyPath(fun, name)))).toString()
 	}
 
