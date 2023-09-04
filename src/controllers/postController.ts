@@ -3,6 +3,8 @@ import { PostSerializer } from "../serializers/postSerializers";
 import AppDataSource from "../config/ormconfig";
 import { Post, PostImage } from "../entities/post.entity";
 import { Repository } from "typeorm";
+import { deletePost, findPostById } from '../services/post.service';
+import AppError from '../utils/appError';
 
 
 
@@ -47,6 +49,34 @@ class PostController{
 		catch(err){
 			next(err);
 		}
+	}
+
+	public delete = async (req:Request, res: Response, next: NextFunction) => {
+		try {
+			const postId = req.params.id;
+			let post = await findPostById(postId);
+
+			if (!post){
+				return new AppError(404, 'post not found.')
+			}
+
+			let currentUser = res.locals.user;
+
+			if (post.postedBy.id === currentUser.id){
+				deletePost(postId);
+				return res.status(200).json({
+					success: "true",
+					message: "post deleted successfully"
+				});
+
+			}else{
+				return new AppError(401, 'You arent authorized to delete this post')
+			}
+
+		}catch(err){
+			next(err)
+		}
+		
 	}
 
 }
