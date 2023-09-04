@@ -4,12 +4,13 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 // eslint-disable-next-line import/extensions, node/no-missing-import
 import AppDataSource from './config/ormconfig';
-import authRouter from './routes/auth.routes';
-import userRouter from './routes/user.routes';
-import handle404 from './routes/404.routes';
-import AppError from './utils/appError';
-import validateEnv from './utils/validateEnv';
-import postRouter from './routes/post.routes';
+import authRouter from './routes/auth.routes.ts';
+import userRouter from './routes/user.routes.ts';
+import handle404 from './routes/404.routes.ts';
+import AppError from './utils/appError.ts';
+import validateEnv from './utils/validateEnv.ts';
+import postRouter from './routes/post.routes.ts';
+import chatRouter from './routes/chat.routes.ts';
 
 require('dotenv').config();
 
@@ -43,6 +44,7 @@ AppDataSource.initialize()
     app.use('/api/auth', authRouter);
     app.use('/api/users', userRouter);
 	app.use("/api/post", postRouter);
+	app.use("/api/chat", chatRouter);
 
 
     // UNHANDLED ROUTE
