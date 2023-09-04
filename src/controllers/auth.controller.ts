@@ -14,6 +14,7 @@ import AppDataSource from '../config/ormconfig.ts';
 import UserSession from '../entities/user.session.ts';
 import UtilsProvider from '../di/utilProviders.ts';
 import { KeyFunction } from '../utils/keyFactory.ts';
+import UserSerializer from '../serializers/userSerializer.ts';
 
 const cookiesOptions: CookieOptions = {
   httpOnly: true,
@@ -89,6 +90,7 @@ export const loginUserHandler = async (
       return next(new AppError(400, 'Invalid email or password'));
     }
 
+    const userSerializer = new UserSerializer();
     // Sign Access and Refresh Tokens
 
     const { accessToken, refreshToken } = await signTokens(user);
@@ -100,6 +102,8 @@ export const loginUserHandler = async (
       ...accessTokenCookieOptions,
       httpOnly: false,
     });
+
+    const current_user = userSerializer.serialize(user)
 
     const session = new UserSession();
     session.userId = user.id;
@@ -114,7 +118,8 @@ export const loginUserHandler = async (
     res.status(200).json({
       status: 'success',
       accessToken,
-      refreshToken
+      refreshToken,
+      current_user
     });
   } catch (err: any) {
     next(err);
