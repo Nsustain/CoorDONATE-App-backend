@@ -31,7 +31,7 @@ export class PostSerializer extends Serializer<Post, any>{
 			"images": this.imageSerializer.serializeMany(instance.contentImages),
 			"likes": instance.likes?.length ?? 0,
 			"comments": instance.comments?.length ?? 0,
-			"user": this.userSerializer.serialize(instance.user),
+			"user": this.userSerializer.serialize(instance.postedBy),
 		};
 	}
 

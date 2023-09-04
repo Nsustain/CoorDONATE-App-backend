@@ -22,13 +22,16 @@ export default class KeyFactory{
 		this.containerPath = containerPath;
 	}
 
+
 	private generateKeyPath(fun: KeyFunction, name: KeyName): string{
 		return `${KeyFunction[fun]}.${KeyName[name]}.key`
 	}
 
 	public getKey(fun: KeyFunction, name: KeyName): string{
+		console.log("containerPath", this.containerPath)
 		return Buffer.from(fs.readFileSync(path.join(this.containerPath, this.generateKeyPath(fun, name)))).toString()
 	}
 
 
 }
+
