@@ -1,13 +1,15 @@
 import { Request, Response, NextFunction } from 'express';
-import { Chat } from '../entities/chat.entity'; // Import the Chat entity
+import { ChatRoom } from '../entities/chat.entity'; // Import the Chat entity
 import { User } from '../entities/user.entity'; // Import the User entity
 import { Repository } from 'typeorm';
 import AppDataSource from '../config/ormconfig';
 
 const userRepository = AppDataSource.getRepository(User);
-const chatRepository = AppDataSource.getRepository(Chat);
+const chatRepository = AppDataSource.getRepository(ChatRoom);
 
 export async function getChatsByUser(req: Request, res: Response, next: NextFunction) {
+  console.log("I am here mothafuker")
+
   try {
     const { userId } = req.params;
 

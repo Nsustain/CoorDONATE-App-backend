@@ -1,19 +1,22 @@
-import { Column, Entity, ManyToMany, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
-import Model from "./model.entity";
-import { User } from "./user.entity";
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import Model from './model.entity';
+import { User } from './user.entity';
+import { ChatRoom } from './chat.entity';
 
 @Entity()
 export class Message extends Model {
-    @PrimaryGeneratedColumn("uuid")
-    id!: string;
+  @PrimaryGeneratedColumn('uuid')
+  id!: string;
 
-    @OneToOne(() => User ,(user)=> user.email)
-    sender!: User
+  @ManyToOne(() => User, (user) => user.sentMessages)
+  sender!: User;
 
-    @OneToOne(() => User ,(user)=> user.email)
-    receiver!: User
+  @ManyToOne(() => ChatRoom, (chat) => chat.id)
+  receiver!: string;
 
-    @Column("timestamp")
-    sentAt!: Date;
+  @Column('timestamp')
+  sentAt!: Date;
 
+  @ManyToOne(() => ChatRoom, (chat) => chat.messages)
+  chat!: ChatRoom;
 }

@@ -8,10 +8,10 @@ const requireUser = (req: Request, res: Response, next: NextFunction) => {
     if (!user) {
       return next(
         new AppError(400, `Session has expired or user doesn't exist`)
-      );
-    }
-
-    next();
+        );
+      }
+      
+      next();
   } catch (err: any) {
     next(err);
   }

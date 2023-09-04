@@ -2,9 +2,10 @@ import { Entity, Column, Index, BeforeInsert, ManyToOne, OneToMany } from 'typeo
 import bcrypt from 'bcryptjs';
 import Model from './model.entity.ts';
 import { Like, Post } from './post.entity.ts';
+import { ChatRoom } from './chat.entity.ts';
+import { Message } from './message.entity.ts';
 
-// eslint-disable-next-line no-shadow
-export enum RoleEnumType {
+enum RoleEnumType {
   USER = 'user',
   ADMIN = 'admin',
 }
@@ -32,20 +33,23 @@ export class User extends Model {
   verified!: boolean;
 
   @OneToMany(() => Post, (post) => post.postedBy)
-  posts!: Post[]
+  posts!: Post[];
 
   @OneToMany(() => Like, (like) => like.user)
   likedPosts!: Like[];
+
+  @OneToMany(() => ChatRoom, (chat) => chat.members)
+  chats!: ChatRoom[];
+
+  @OneToMany(() => Message, (message) => message.sender)
+  sentMessages!: Message[];
 
   @BeforeInsert()
   async hashPassword() {
     this.password = await bcrypt.hash(this.password, 12);
   }
 
-  static async comparePasswords(
-    candidatePassword: string,
-    hashedPassword: string
-  ) {
+  static async comparePasswords(candidatePassword: string, hashedPassword: string) {
     return await bcrypt.compare(candidatePassword, hashedPassword);
   }
 
