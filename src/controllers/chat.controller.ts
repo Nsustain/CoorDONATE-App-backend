@@ -45,7 +45,7 @@ class ChatController {
       
       members = users;
       const existingChat = await this.repository.findOne({
-        where: { members   },
+        where: { members },
       });
 
       if (existingChat) {
