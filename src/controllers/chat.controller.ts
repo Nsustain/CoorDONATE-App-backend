@@ -5,7 +5,7 @@ import { ChatRoom } from '../entities/chat.entity';
 import { Repository, getRepository, SelectQueryBuilder } from 'typeorm';
 import { User } from '../entities/user.entity';
 import { getChatsByUser } from '../middleware/getChatByUser';
-import { findChatById } from '../services/chat.service';
+import { createChat, findChatById } from '../services/chat.service';
 import { findUserById } from '../services/user.service';
 
 class ChatController {
@@ -23,39 +23,27 @@ class ChatController {
     }
   };
 
-  private async createChat(chat: ChatRoom): Promise<ChatRoom> {
-
-    chat = await this.repository.save(this.repository.create(chat));
-    console.log("came here 2, ", chat)
-    return chat;
-  }
-
   public create = async (req: Request, res: Response, next: NextFunction) => {
     
     try {
       await this.serializer.validate(req, res);
-      let { members } = req.body;
-      const users = [];
-      for (let memberId in members) {
-        let user = await findUserById(memberId);
-        if (user) {
-          users.push(user);
-        }
-      }
-      
-      members = users;
-      const existingChat = await this.repository.findOne({
-        where: { members },
-      });
+      let chat = await this.serializer.deserializePromise(req.body);
 
-      if (existingChat) {
-        return existingChat; // Return the existing chat
-      }
+      console.log(chat)
+      // check if the chat already exists 
+      const existingChat = await this.repository.createQueryBuilder('chat')
+      .leftJoinAndSelect('chat.members', 'member')
+      .where('member.id IN (:...memberIds)', { memberIds: chat.members.map(member => member.id) })
+      .getOne();
 
-      let chat = this.serializer.deserialize(req.body);
-      
-      chat = await this.createChat(chat);
-      return res.status(201).json(this.serializer.serialize(chat));
+      console.log("here",existingChat)
+    if (existingChat) {
+      return res.status(200).json(this.serializer.serializePromise(existingChat)); // Return the existing chat
+    }
+
+      chat = await createChat(chat);
+
+      return res.status(201).json(this.serializer.serializePromise(chat));
     }
     catch(err) {
       next(err);

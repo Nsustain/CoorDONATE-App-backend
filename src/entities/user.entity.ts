@@ -1,4 +1,4 @@
-import { Entity, Column, Index, BeforeInsert, ManyToOne, OneToMany } from 'typeorm';
+import { Entity, Column, Index, BeforeInsert, ManyToOne, OneToMany, ManyToMany } from 'typeorm';
 import bcrypt from 'bcryptjs';
 import Model from './model.entity.ts';
 import { Like, Post } from './post.entity.ts';
@@ -37,6 +37,9 @@ export class User extends Model {
 
   @OneToMany(() => Like, (like) => like.user)
   likedPosts!: Like[];
+
+  // @OneToMany(() => ChatRoom, (chat) => chat.members)
+  // chats!: ChatRoom[];
 
   @OneToMany(() => ChatRoom, (chat) => chat.members)
   chats!: ChatRoom[];
