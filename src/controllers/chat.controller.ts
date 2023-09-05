@@ -29,14 +29,14 @@ class ChatController {
       await this.serializer.validate(req, res);
       let chat = await this.serializer.deserializePromise(req.body);
 
-      console.log(chat)
       // check if the chat already exists 
       const existingChat = await this.repository.createQueryBuilder('chat')
       .leftJoinAndSelect('chat.members', 'member')
       .where('member.id IN (:...memberIds)', { memberIds: chat.members.map(member => member.id) })
       .getOne();
 
-      console.log("here",existingChat)
+      console.log(chat)
+
     if (existingChat) {
       return res.status(200).json(this.serializer.serializePromise(existingChat)); // Return the existing chat
     }
