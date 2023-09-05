@@ -5,8 +5,6 @@ import AppError from "../utils/appError";
 import { MessageSerializer } from "./messageSerializers";
 import Serializer from "./serializer";
 import UserSerializer from "./userSerializer";
-import { findUserById } from "../services/user.service";
-import AppError from "../utils/appError";
 import SerializerPromise from "./serializerPromise";
 import { Message } from "../entities/message.entity";
 
