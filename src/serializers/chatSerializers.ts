@@ -13,7 +13,7 @@ export class ChatSerializer extends SerializerPromise<ChatRoom, any> {
         return {
             "id" : instance.id, 
             "members": instance.members,
-            "messages": instance.messages
+            "messages": instance.messages ? instance.messages : []
         };
     }
 
@@ -34,6 +34,7 @@ export class ChatSerializer extends SerializerPromise<ChatRoom, any> {
       
         // desealizer messages
         const currMessages = []
+        const date = data.messages
 
         for (let messageId in data.messages){
 
