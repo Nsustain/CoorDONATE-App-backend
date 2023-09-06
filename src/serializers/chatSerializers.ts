@@ -6,7 +6,6 @@ import { MessageSerializer } from "./messageSerializers";
 import Serializer from "./serializer";
 import UserSerializer from "./userSerializer";
 import SerializerPromise from "./serializerPromise";
-import { Message } from "../entities/message.entity";
 
 const messageSerializer = new MessageSerializer();
 const userSerializer = new UserSerializer();
