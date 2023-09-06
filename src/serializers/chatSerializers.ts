@@ -42,7 +42,7 @@ export class ChatSerializer extends SerializerPromise<ChatRoom, any> {
             let newMessage = new Message();
             newMessage.sender = messageData.sender;
             newMessage.receiver = messageData.receiver;
-            newMessage.chat = messageData.text;
+            newMessage.content = messageData.text;
             
             currMessages.push(newMessage);
         }
