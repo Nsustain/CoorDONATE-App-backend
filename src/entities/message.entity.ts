@@ -17,6 +17,5 @@ export class Message extends Model {
   @Column('timestamp')
   sentAt!: Date;
 
-  @ManyToOne(() => ChatRoom, (chat) => chat.messages)
-  chat!: ChatRoom;
+  content!: string;
 }
