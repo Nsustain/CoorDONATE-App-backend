@@ -30,9 +30,7 @@ export class ChatSerializer extends SerializerPromise<ChatRoom, any> {
         chat.members = await Promise.all(memberPromises);
       
         // desealizer messages
-        const currMessages = await messageSerializer.deserializeManyPromise(data.messages)
-
-        chat.messages = currMessages;
+        chat.messages = []
         
         return chat;
       }

@@ -12,10 +12,8 @@ import { User } from '../entities/user.entity.ts';
 import { signJwt, verifyJwt } from '../utils/jwt.ts';
 import AppDataSource from '../config/ormconfig.ts';
 import UserSession from '../entities/user.session.ts';
-import UtilsProvider from '../di/utilProviders.ts';
 import { KeyFunction } from '../utils/keyFactory.ts';
 import UserSerializer from '../serializers/userSerializer.ts';
-import { AuthConfig } from '../config/authConfig.ts';
 
 const cookiesOptions: CookieOptions = {
   httpOnly: true,
