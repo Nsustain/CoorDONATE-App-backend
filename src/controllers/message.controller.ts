@@ -1,9 +1,12 @@
-import { NextFunction, Request, Response, response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import AppDataSource from '../config/ormconfig';
-import { Repository, getRepository, SelectQueryBuilder } from 'typeorm';
+import { Repository } from 'typeorm';
 import { MessageSerializer } from '../serializers/messageSerializers';
 import { Message } from '../entities/message.entity';
-import { deleteMessage, getMessagesByChatRoomId, sendMessage } from '../services/message.service';
+import { deleteMessage, getMessagesByChatRoom, sendMessage } from '../services/message.service';
+import { findChatById } from '../services/chat.service';
+import AppError from '../utils/appError';
+import { findUserById } from '../services/user.service';
 
 
 class MessageController {
@@ -13,9 +16,23 @@ class MessageController {
     public sendMessage = async (req: Request, res: Response, next: NextFunction) => {
         try {
             await this.serializer.validate(req, res);
-            let message = await this.serializer.deserialize(req.body);
+
+            let message = await this.serializer.deserializePromise(req.body);
+
+            let chatRoom = message.receiverRoom
+
+            // check if belong to that chatRoom
+
+            const isMember = chatRoom.members.some(member => member.id === message.sender.id);
+            
+            if (!isMember) {
+                return next(new AppError(403, "User is not a member of the ChatRoom"));
+            }
 
             message = await sendMessage(message); 
+            
+            return res.status(201).json(this.serializer.serializePromise(message))
+
         } catch(err) {
             next(err)
         }
@@ -31,9 +48,27 @@ class MessageController {
 
     public getMessagesByChatRoomId = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            await getMessagesByChatRoomId(req.body.chatRoomId);
+            const { chatRoomId } = req.params;
+            // check that the user belong to this chatroom
+
+            // get chatroom object
+            const chatRoom = await findChatById(chatRoomId);
+            if (!chatRoom) {
+                return next(new AppError(404, "chatroom doesn't exist"));
+            }
+
+            const messages = await getMessagesByChatRoom(chatRoom);
+            
+            if (!messages) {
+                return res.status(404).json("No messages in this chatroom")
+            }
+
+            return res.status(200).json(await this.serializer.serializeManyPromise(messages!))
+            
         }catch(err) {
             next(err)
         }
     };
 }
+
+export const messageController = new MessageController;

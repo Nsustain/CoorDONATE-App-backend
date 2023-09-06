@@ -11,6 +11,7 @@ import AppError from './utils/appError.ts';
 import validateEnv from './utils/validateEnv.ts';
 import postRouter from './routes/post.routes.ts';
 import chatRouter from './routes/chat.routes.ts';
+import messageRouter from './routes/message.route.ts';
 
 require('dotenv').config();
 
@@ -43,9 +44,9 @@ AppDataSource.initialize()
     // ROUTES
     app.use('/api/auth', authRouter);
     app.use('/api/users', userRouter);
-	app.use("/api/post", postRouter);
-	app.use("/api/chat", chatRouter);
-
+	  app.use("/api/post", postRouter);
+    app.use("/api/chat", chatRouter);
+    app.use('/api/message', messageRouter);
 
     // UNHANDLED ROUTE
     app.all('*', handle404);
@@ -72,4 +73,4 @@ AppDataSource.initialize()
   })
   .catch((error) => {
     console.log(error);
-  });
+  }); 

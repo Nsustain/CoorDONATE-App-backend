@@ -1,14 +1,29 @@
 import {Message} from '../entities/message.entity';
 import AppDataSource from '../config/ormconfig';
+import { ChatRoom } from '../entities/chat.entity';
 
 const messageRepository = AppDataSource.getRepository(Message);
 
-export const sendMessage = async (message: Partial<Message>) => {
-    return (await messageRepository.save(messageRepository.create(message)))as Message;
+export const sendMessage = async (message: Message) => {
+    return (await messageRepository.save(messageRepository.create(message))) as Message;
 }
 
-export const getMessagesByChatRoomId = async (chatRoomId: string) => {
-    return await messageRepository.findOneBy({receiver: chatRoomId});
+export const getMessagesByChatRoom = async (chatRoom: ChatRoom) => {
+    let messages = await messageRepository.find({
+        join: {
+            alias: 'message',
+            leftJoinAndSelect: {
+                receiverRoom: 'message.receiverRoom',
+            },
+        },
+        where: {
+            receiverRoom: {
+                id: chatRoom.id,
+            },
+        },
+});
+
+    return messages
 }
 
 export const deleteMessage = async(messageId: string) => {

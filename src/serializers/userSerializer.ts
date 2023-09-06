@@ -6,6 +6,7 @@ import Serializer from "./serializer";
 export default class UserSerializer extends Serializer<User, any>{
 	serialize(instance: User) {
 		return {
+			"id": instance.id,
 			"name": instance.name,
 			"email": instance.email,
 			"verified": instance.verified,

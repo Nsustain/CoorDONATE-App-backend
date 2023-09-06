@@ -6,7 +6,6 @@ import AppError from '../utils/appError';
 import { findChatByUserId } from '../services/chat.service';
 
 const userRepository = AppDataSource.getRepository(User);
-const chatRepository = AppDataSource.getRepository(ChatRoom);
 
 export async function getChatsByUser(req: Request, res: Response, next: NextFunction) {
   try {
@@ -17,7 +16,7 @@ export async function getChatsByUser(req: Request, res: Response, next: NextFunc
       return next(new AppError(401, "You are not authorized to view this chats."))
     }
 
-    // Fetch the user based on the provided userId
+    // check if user exists
     const user = await userRepository.findOneBy({id: userId});
 
     if (!user) {

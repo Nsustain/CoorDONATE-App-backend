@@ -1,25 +1,40 @@
 import { Message } from "../entities/message.entity";
+import { findChatById } from "../services/chat.service";
 import { findUserById } from "../services/user.service";
-import Serializer from "./serializer";
-import { chatController } from "../controllers/chat.controller";
+import AppError from "../utils/appError";
+import SerializerPromise from "./serializerPromise";
 
-export class MessageSerializer extends Serializer<Message, any> {
+export class MessageSerializer extends SerializerPromise<Message, any> {
     
-    serialize(instance: Message) {
+    serializePromise(instance: Message) {
         return {
             "id" : instance.id,
             "sender" : instance.sender,
-            "receiver" : instance.receiver,
+            "receiverRoom" : instance.receiverRoom,
             "sentAt" : instance.sentAt,
             "content" : instance.content
         }
     }
 
-    deserialize(data: any): Message {
+    async deserializePromise(data: any): Promise<Message> {
+
+        // check that chatroom exists
+        const recieverChatRoom = await findChatById(data.receiverRoom);
+        const sender = await findUserById(data.sender)
+
+        if (!recieverChatRoom){
+            throw new AppError(404, "ChatRoom not found");
+        }
+
+        if (!sender){
+            throw new AppError(404, "Sender user not found")
+        }
+        
+
         const message = new Message();
         message.content = data.content,
-        message.receiver = data.receiver,
-        message.sender = data.sender
+        message.receiverRoom = recieverChatRoom,
+        message.sender = sender
 
         return message;
     }

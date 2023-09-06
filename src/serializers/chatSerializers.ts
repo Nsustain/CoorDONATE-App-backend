@@ -1,19 +1,16 @@
-import { ValidationChain, body } from "express-validator";
 import { ChatRoom } from "../entities/chat.entity";
-import Serializer from "./serializer";
-import { User } from "../entities/user.entity";
-import UserSerializer from "./userSerializer";
 import { findUserById } from "../services/user.service";
 import AppError from "../utils/appError";
 import SerializerPromise from "./serializerPromise";
-import { Message } from "../entities/message.entity";
+import { MessageSerializer } from "./messageSerializers";
 
+const messageSerializer = new MessageSerializer();
 export class ChatSerializer extends SerializerPromise<ChatRoom, any> {
     serializePromise(instance: ChatRoom) {
         return {
             "id" : instance.id, 
             "members": instance.members,
-            "messages": instance.messages ? instance.messages : []
+            "messages": instance.messages ? messageSerializer.serializeManyPromise(instance.messages) : []
         };
     }
 
@@ -33,19 +30,7 @@ export class ChatSerializer extends SerializerPromise<ChatRoom, any> {
         chat.members = await Promise.all(memberPromises);
       
         // desealizer messages
-        const currMessages = []
-        const date = data.messages
-
-        for (let messageId in data.messages){
-
-            let messageData = data.messages[messageId];
-            let newMessage = new Message();
-            newMessage.sender = messageData.sender;
-            newMessage.receiver = messageData.receiver;
-            newMessage.content = messageData.text;
-            
-            currMessages.push(newMessage);
-        }
+        const currMessages = await messageSerializer.deserializeManyPromise(data.messages)
 
         chat.messages = currMessages;
         

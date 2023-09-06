@@ -41,6 +41,7 @@
     // @OneToMany(() => ChatRoom, (chat) => chat.members)
     // chats!: ChatRoom[];
 
+    // Todo: make it manyTomany
     @OneToMany(() => ChatRoom, (chat) => chat.members)
     chats!: ChatRoom[];
 

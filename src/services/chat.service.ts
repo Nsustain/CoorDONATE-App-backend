@@ -11,7 +11,11 @@ export const createChat = async (chatData: Partial<ChatRoom>) => {
 
 // Find a chat by its ID
 export const findChatById = async (chatId: string) => {
-  return await chatRepository.findOneBy({id: chatId});
+  return await chatRepository.findOne({ where: {id: chatId}, 
+  relations: [
+      "members",
+      "messages",
+  ] })
 };
 
 // Fetch chats where the user is a member

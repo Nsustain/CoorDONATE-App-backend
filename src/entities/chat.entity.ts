@@ -8,13 +8,19 @@ export class ChatRoom extends Model {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
-  // @OneToMany(() => User, (user) => user.chats)
-  // members!: User[]; // Assuming User entity has a 'chat' property representing the inverse side of the relationship
+  // Todo: groupname
+  // @Column()
+  // title!: string; 
 
+  // Todo: field to check group or dm
+  // @Column('bool')
+  // isGroup!: bool
+
+  // many to many because the user should join multiple chatrooms
   @ManyToMany(() => User, (user) => user.chats)
   @JoinTable()
   members!: User[];
   
-  @OneToMany(() => Message, (message) => message.content)
+  @OneToMany(() => Message, (message) => message.receiverRoom)
   messages!: Message[];
 }

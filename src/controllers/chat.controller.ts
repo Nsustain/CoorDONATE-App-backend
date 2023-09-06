@@ -24,6 +24,7 @@ class ChatController {
     
     try {
       await this.serializer.validate(req, res);
+      // Todo: remove message from request body
       let chat = await this.serializer.deserializePromise(req.body);
 
       // check if the chat already exists 
