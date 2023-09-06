@@ -1,10 +1,10 @@
 import { NextFunction, Request, Response } from 'express';
-import { findUserById } from '../services/user.service.ts';
-import AppError from '../utils/appError.ts';
-import { verifyJwt } from '../utils/jwt.ts';
-import AppDataSource from '../config/ormconfig.ts';
-import UserSession from '../entities/user.session.ts';
-import { KeyFunction } from '../utils/keyFactory.ts';
+import { findUserById } from '../services/user.service';
+import AppError from '../utils/appError';
+import { verifyJwt } from '../utils/jwt';
+import AppDataSource from '../config/ormconfig';
+import UserSession from '../entities/user.session';
+import { KeyFunction } from '../utils/keyFactory';
 
 const deserializeUser = async (
   req: Request,

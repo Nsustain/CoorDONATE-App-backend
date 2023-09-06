@@ -1,8 +1,8 @@
 import 'reflect-metadata';
 import { DataSource } from 'typeorm';
-import UserSession from '../entities/user.session.ts';
-import { User } from '../entities/user.entity.ts';
-import { Post, PostImage, Comment, Like } from '../entities/post.entity.ts';
+import UserSession from '../entities/user.session';
+import { User } from '../entities/user.entity';
+import { Post, PostImage, Comment, Like } from '../entities/post.entity';
 
 const AppDataSource = new DataSource({
   type: 'postgres',

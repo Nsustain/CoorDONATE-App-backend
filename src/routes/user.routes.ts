@@ -1,7 +1,7 @@
 import express from 'express';
-import getMeHandler from '../controllers/user.controller.ts';
-import deserializeUser from '../middleware/deserializeUser.ts';
-import requireUser from '../middleware/requireUser.ts';
+import getMeHandler from '../controllers/user.controller';
+import deserializeUser from '../middleware/deserializeUser';
+import requireUser from '../middleware/requireUser';
 
 const userRouter = express.Router();
 

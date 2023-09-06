@@ -4,12 +4,10 @@ import {
   logoutHandler,
   refreshAccessTokenHandler,
   registerUserHandler,
-} from '../controllers/auth.controller.ts';
+} from '../controllers/auth.controller';
 
-import deserializeUser from '../middleware/deserializeUser.ts';
-import requireUser from '../middleware/requireUser.ts';
-import validate from '../middleware/validate.ts';
-import { createUserSchema, loginUserSchema } from '../schemas/user.schema.ts';
+import deserializeUser from '../middleware/deserializeUser';
+import requireUser from '../middleware/requireUser';
 
 const authRouter = express.Router();
 

@@ -4,12 +4,12 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 // eslint-disable-next-line import/extensions, node/no-missing-import
 import AppDataSource from './config/ormconfig';
-import authRouter from './routes/auth.routes.ts';
-import userRouter from './routes/user.routes.ts';
-import handle404 from './routes/404.routes.ts';
-import AppError from './utils/appError.ts';
-import validateEnv from './utils/validateEnv.ts';
-import postRouter from './routes/post.routes.ts';
+import authRouter from './routes/auth.routes';
+import userRouter from './routes/user.routes';
+import handle404 from './routes/404.routes';
+import AppError from './utils/appError';
+import validateEnv from './utils/validateEnv';
+import postRouter from './routes/post.routes';
 
 require('dotenv').config();
 
@@ -17,6 +17,7 @@ AppDataSource.initialize()
   .then(async () => {
     console.log('database connected');
 
+    validateEnv()
     const app = express();
     // eslint-disable-next-line global-require
     // eslint-disable-next-line global-require

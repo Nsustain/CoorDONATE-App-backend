@@ -1,7 +1,7 @@
 import { Entity, Column, Index, BeforeInsert, ManyToOne, OneToMany } from 'typeorm';
 import bcrypt from 'bcryptjs';
-import Model from './model.entity.ts';
-import { Like, Post } from './post.entity.ts';
+import Model from './model.entity';
+import { Like, Post } from './post.entity';
 
 // eslint-disable-next-line no-shadow
 export enum RoleEnumType {

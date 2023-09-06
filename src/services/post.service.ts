@@ -1,6 +1,6 @@
-import { Like, Post, PostImage, Comment } from '../entities/post.entity.ts';
-import AppDataSource from '../config/ormconfig.ts';
-import AppError from '../utils/appError.ts';
+import { Like, Post, PostImage, Comment } from '../entities/post.entity';
+import AppDataSource from '../config/ormconfig';
+import AppError from '../utils/appError';
 
 const postRepository = AppDataSource.getRepository(Post);
 const contentImagesRepository = AppDataSource.getRepository(PostImage);

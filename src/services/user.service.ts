@@ -1,10 +1,10 @@
 import config from 'config';
-import { User } from '../entities/user.entity.ts';
-import { CreateUserInput } from '../schemas/user.schema.ts';
-import AppDataSource from '../config/ormconfig.ts';
-import { signJwt } from '../utils/jwt.ts';
-import { KeyFunction } from '../utils/keyFactory.ts';
-import { AuthConfig } from '../config/authConfig.ts';
+import { User } from '../entities/user.entity';
+import { CreateUserInput } from '../schemas/user.schema';
+import AppDataSource from '../config/ormconfig';
+import { signJwt } from '../utils/jwt';
+import { KeyFunction } from '../utils/keyFactory';
+import { AuthConfig } from '../config/authConfig';
 
 const userRepository = AppDataSource.getRepository(User);
 
