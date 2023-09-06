@@ -11,6 +11,7 @@ class ChatController {
   private serializer = new ChatSerializer();
   private repository: Repository<ChatRoom> = AppDataSource.getRepository(ChatRoom);
 
+
   public getAllChats = async (req: Request, res: Response, next: NextFunction) => {
     try {
 
