@@ -15,6 +15,6 @@ export class ChatRoom extends Model {
   @JoinTable()
   members!: User[];
   
-  @OneToMany(() => Message, (message) => message.chat)
+  @OneToMany(() => Message, (message) => message.content)
   messages!: Message[];
 }
