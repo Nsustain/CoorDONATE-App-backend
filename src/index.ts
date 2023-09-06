@@ -19,7 +19,10 @@ AppDataSource.initialize()
   .then(async () => {
     console.log('database connected');
 
-    validateEnv()
+    // Todo: create socket io object and server
+    // Todo: io.on('connection')
+
+    
     const app = express();
     // eslint-disable-next-line global-require
     // eslint-disable-next-line global-require
