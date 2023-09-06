@@ -1,12 +1,9 @@
-import { NextFunction, Request, Response, response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import { ChatSerializer } from '../serializers/chatSerializers';
 import AppDataSource from '../config/ormconfig';
 import { ChatRoom } from '../entities/chat.entity';
-import { Repository, getRepository, SelectQueryBuilder } from 'typeorm';
-import { User } from '../entities/user.entity';
-import { getChatsByUser } from '../middleware/getChatByUser';
-import { createChat, findChatById } from '../services/chat.service';
-import { findUserById } from '../services/user.service';
+import { Repository } from 'typeorm';
+import { createChat } from '../services/chat.service';
 
 class ChatController {
   private serializer = new ChatSerializer();
@@ -35,7 +32,6 @@ class ChatController {
       .where('member.id IN (:...memberIds)', { memberIds: chat.members.map(member => member.id) })
       .getOne();
 
-      console.log(chat)
 
     if (existingChat) {
       return res.status(200).json(this.serializer.serializePromise(existingChat)); // Return the existing chat
