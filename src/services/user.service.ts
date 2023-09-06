@@ -4,6 +4,7 @@ import { CreateUserInput } from '../schemas/user.schema.ts';
 import AppDataSource from '../config/ormconfig.ts';
 import { signJwt } from '../utils/jwt.ts';
 import { KeyFunction } from '../utils/keyFactory.ts';
+import { AuthConfig } from '../config/authConfig.ts';
 
 const userRepository = AppDataSource.getRepository(User);
 
@@ -33,11 +34,11 @@ export const signTokens = async (user: User) => {
 
   // create access and refresh token
   const accessToken = signJwt({ sub: user.id }, KeyFunction.access, {
-    expiresIn: `${config.get<number>('accessTokenExpiresIn')}m`,
+    expiresIn: `${AuthConfig.ACCESS_TOKEN_EXPIRES_IN}m`,
   });
 
   const refreshToken = signJwt({ sub: user.id }, KeyFunction.refresh, {
-    expiresIn: `${config.get<number>('refreshTokenExpiresIn')}m`,
+    expiresIn: `${AuthConfig.REFRESH_TOKEN_EXPIRES_IN}m`,
   });
 
   return { accessToken, refreshToken };
