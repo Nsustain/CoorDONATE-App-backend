@@ -14,6 +14,15 @@ export const findChatById = async (chatId: string) => {
   return await chatRepository.findOneBy({id: chatId});
 };
 
+// Fetch chats where the user is a member
+export const findChatByUserId = async (userId: string) => {
+  return await chatRepository
+    .createQueryBuilder('chat')
+    .innerJoinAndSelect('chat.members', 'member')
+    .where('member.id = :userId', { userId: userId })
+    .getMany();
+}
+
 // Find chats by a specific condition
 export const findChats = async (query: Object) => {
   return await chatRepository.find(query);

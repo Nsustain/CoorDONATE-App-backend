@@ -55,7 +55,6 @@ const deserializeUser = async (
     }
     // Add user to res.locals
     res.locals.user = user;
-    console.log("came here 1")
     next();
   } catch (err: any) {
     next(err);
