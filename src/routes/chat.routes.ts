@@ -9,6 +9,6 @@ const chatRouter = express.Router()
 chatRouter.use(deserializeUser, requireUser);
 
 chatRouter.post('/create', chatController.create);
-chatRouter.get('/get:userId', getChatsByUser, chatController.getAllChats);
+chatRouter.get('/get/:userId', getChatsByUser, chatController.getAllChats);
 
 export default chatRouter;
