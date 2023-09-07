@@ -9,8 +9,8 @@ export class MessageSerializer extends Serializer<Message, any> {
     serialize(instance: Message) {
         return {
             "id" : instance.id,
-            // "sender" : instance.sender.id,
-            // "receiverRoom" : instance.receiverRoom.id,
+            "sender" : instance.sender.id,
+            "receiverRoom" : instance.receiverRoom.id,
             "sentAt" : instance.sentAt,
             "content" : instance.content
         }

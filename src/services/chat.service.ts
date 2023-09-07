@@ -15,6 +15,8 @@ export const findChatById = async (chatId: string) => {
   relations: [
       "members",
       "messages",
+      "messages.sender",
+      "messages.receiverRoom"
   ] })
 };
 
