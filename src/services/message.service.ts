@@ -21,6 +21,10 @@ export const getMessagesByChatRoom = async (chatRoom: ChatRoom) => {
                 id: chatRoom.id,
             },
         },
+        relations: [
+            "sender",
+            "receiverRoom"
+        ]
 });
 
     return messages

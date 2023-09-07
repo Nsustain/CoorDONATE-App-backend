@@ -2,18 +2,22 @@ import { Message } from "../entities/message.entity";
 import { findChatById } from "../services/chat.service";
 import { findUserById } from "../services/user.service";
 import AppError from "../utils/appError";
-import SerializerPromise from "./serializerPromise";
+import Serializer from "./serializer";
 
-export class MessageSerializer extends SerializerPromise<Message, any> {
+export class MessageSerializer extends Serializer<Message, any> {
     
-    serializePromise(instance: Message) {
+    serialize(instance: Message) {
         return {
             "id" : instance.id,
-            "sender" : instance.sender,
-            "receiverRoom" : instance.receiverRoom,
+            // "sender" : instance.sender.id,
+            // "receiverRoom" : instance.receiverRoom.id,
             "sentAt" : instance.sentAt,
             "content" : instance.content
         }
+    }
+
+    deserialize(data: any): Message {
+		throw new Error("Method not implemented.");
     }
 
     async deserializePromise(data: any): Promise<Message> {

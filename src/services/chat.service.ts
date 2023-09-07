@@ -31,3 +31,7 @@ export const findChatByUserId = async (userId: string) => {
 export const findChats = async (query: Object) => {
   return await chatRepository.find(query);
 };
+
+export const deleteChat = async (roomId: string) => {
+  return await chatRepository.delete(roomId)
+}

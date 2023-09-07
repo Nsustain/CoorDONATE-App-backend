@@ -1,17 +1,24 @@
 import { ChatRoom } from "../entities/chat.entity";
 import { findUserById } from "../services/user.service";
 import AppError from "../utils/appError";
-import SerializerPromise from "./serializerPromise";
 import { MessageSerializer } from "./messageSerializers";
+import Serializer from "./serializer";
+import UserSerializer from "./userSerializer";
 
 const messageSerializer = new MessageSerializer();
-export class ChatSerializer extends SerializerPromise<ChatRoom, any> {
-    serializePromise(instance: ChatRoom) {
+const userSerializer = new UserSerializer();
+export class ChatSerializer extends Serializer<ChatRoom, any> {
+    serialize(instance: ChatRoom) {
         return {
             "id" : instance.id, 
-            "members": instance.members,
-            "messages": instance.messages ? messageSerializer.serializeManyPromise(instance.messages) : []
+            "members": instance.members ? userSerializer.serializeMany(instance.members) : [],
+            "messages": instance.messages ? messageSerializer.serializeMany(instance.messages) : [],
         };
+    }
+
+    deserialize(data: any): ChatRoom {
+		  throw new Error("Method not implemented.");
+      
     }
 
     async deserializePromise(data: any): Promise<ChatRoom> {

@@ -8,6 +8,9 @@ export default abstract class Serializer<F, T>{
 
 	abstract deserialize(data: T): F
 
+	abstract deserializePromise(data: T): Promise<F>;
+
+
 	public serializeMany(instances: F[]): T[]{
 		return instances.map(
 			(instance: F) => {
@@ -16,6 +19,11 @@ export default abstract class Serializer<F, T>{
 		)
 	}
 
+
+	public deserializeManyPromise(dataArray: T[]): Promise<F[]> {
+		return Promise.all(dataArray.map((data: T) => this.deserializePromise(data)));
+	  }
+	  
 	public deserializeMany(dataArray: T[]): F[]{
 		return dataArray.map(
 			(data: T) => {

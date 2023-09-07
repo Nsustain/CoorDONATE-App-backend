@@ -6,7 +6,6 @@ import { Message } from '../entities/message.entity';
 import { deleteMessage, getMessagesByChatRoom, sendMessage } from '../services/message.service';
 import { findChatById } from '../services/chat.service';
 import AppError from '../utils/appError';
-import { findUserById } from '../services/user.service';
 
 
 class MessageController {
@@ -31,7 +30,7 @@ class MessageController {
 
             message = await sendMessage(message); 
             
-            return res.status(201).json(this.serializer.serializePromise(message))
+            return res.status(201).json(this.serializer.serialize(message))
 
         } catch(err) {
             next(err)
@@ -63,7 +62,7 @@ class MessageController {
                 return res.status(404).json("No messages in this chatroom")
             }
 
-            return res.status(200).json(await this.serializer.serializeManyPromise(messages!))
+            return res.status(200).json(await this.serializer.serializeMany(messages!))
             
         }catch(err) {
             next(err)

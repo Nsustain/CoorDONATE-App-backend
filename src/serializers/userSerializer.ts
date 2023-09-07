@@ -17,4 +17,8 @@ export default class UserSerializer extends Serializer<User, any>{
 		throw new Error("Method not implemented.");
 	}
 
+	deserializePromise(data: any): Promise<User> {
+		throw new Error("Method not implemented.");
+	}
+
 }
