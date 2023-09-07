@@ -5,7 +5,6 @@ import AppError from "../utils/appError";
 import { MessageSerializer } from "./messageSerializers";
 import Serializer from "./serializer";
 import UserSerializer from "./userSerializer";
-import SerializerPromise from "./serializerPromise";
 
 const messageSerializer = new MessageSerializer();
 const userSerializer = new UserSerializer();
@@ -34,10 +33,6 @@ export class ChatSerializer extends Serializer<ChatRoom, any> {
       
     }
 
-    deserialize(data: any): ChatRoom {
-		  throw new Error("Method not implemented.");
-      
-    }
 
     async deserializePromise(data: any): Promise<ChatRoom> {
         const chat = new ChatRoom();
