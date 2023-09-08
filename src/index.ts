@@ -1,6 +1,7 @@
 import express, { Request, Response, NextFunction } from 'express';
 import config from 'config';
 import cors from 'cors';
+import http from 'http'
 import cookieParser from 'cookie-parser';
 // eslint-disable-next-line import/extensions, node/no-missing-import
 import AppDataSource from './config/ormconfig';
@@ -12,6 +13,9 @@ import validateEnv from './utils/validateEnv.ts';
 import postRouter from './routes/post.routes.ts';
 import chatRouter from './routes/chat.routes.ts';
 import messageRouter from './routes/message.route.ts';
+import { Server } from 'socket.io';
+import { AuthConfig } from './config/authConfig.ts';
+import SocketController from './websockets/socketController.ts';
 
 require('dotenv').config();
 
@@ -19,8 +23,6 @@ AppDataSource.initialize()
   .then(async () => {
     console.log('database connected');
 
-    // Todo: create socket io object and server
-    // Todo: io.on('connection')
 
     
     const app = express();
@@ -39,7 +41,7 @@ AppDataSource.initialize()
     // cors
     app.use(
       cors({
-        origin: config.get<string>('origin'),
+        origin: AuthConfig.ORIGIN,
         credentials: true,
       })
     );
@@ -68,11 +70,29 @@ AppDataSource.initialize()
         });
       }
     );
+
+
+    // create http server
+    const ioServer = http.createServer(app, );
+    // create socket.io server
+    const io = new Server(ioServer, {
+      cors: {
+        origin: AuthConfig.ORIGIN, 
+        methods: ['GET', 'POST'],
+        allowedHeaders: ['Content-Type', 'Authorization'],
+        credentials: true,
+      },
+    });
+
+    // Socket Handling
+    const socketController = new SocketController(io)
+
     const port = parseInt(process.env.PORT || '4000', 10);
 
-    app.listen(port, () => {
+    ioServer.listen(port, () => {
       console.log(`Server Running at port ${port}`);
     });
+
   })
   .catch((error) => {
     console.log(error);

@@ -14,6 +14,7 @@ import AppDataSource from '../config/ormconfig.ts';
 import UserSession from '../entities/user.session.ts';
 import { KeyFunction } from '../utils/keyFactory.ts';
 import UserSerializer from '../serializers/userSerializer.ts';
+import { AuthConfig } from '../config/authConfig.ts';
 
 const cookiesOptions: CookieOptions = {
   httpOnly: true,
@@ -27,17 +28,17 @@ const userSessionRepository = AppDataSource.getRepository(UserSession);
 const accessTokenCookieOptions: CookieOptions = {
   ...cookiesOptions,
   expires: new Date(
-    Date.now() + config.get<number>('accessTokenExpiresIn') * 60 * 1000
+    Date.now() + AuthConfig.ACCESS_TOKEN_EXPIRES_IN * 60 * 1000
   ),
-  maxAge: config.get<number>('accessTokenExpiresIn') * 60 * 1000,
+  maxAge: AuthConfig.ACCESS_TOKEN_EXPIRES_IN * 60 * 1000,
 };
 
 const refreshTokenCookieOptions: CookieOptions = {
   ...cookiesOptions,
   expires: new Date(
-    Date.now() + config.get<number>('refreshTokenExpiresIn') * 60 * 1000
+    Date.now() + AuthConfig.REFRESH_TOKEN_EXPIRES_IN * 60 * 1000
   ),
-  maxAge: config.get<number>('refreshTokenExpiresIn') * 60 * 1000,
+  maxAge: AuthConfig.REFRESH_TOKEN_EXPIRES_IN * 60 * 1000,
 };
 
 
@@ -170,7 +171,7 @@ export const refreshAccessTokenHandler = async (
 
     // Sign new access token
     const accessToken = signJwt({ sub: user.id }, KeyFunction.access, {
-      expiresIn: `${config.get<number>('accessTokenExpiresIn')}m`,
+      expiresIn: `${AuthConfig.ACCESS_TOKEN_EXPIRES_IN}m`,
     });
 
     // Set access token cookie

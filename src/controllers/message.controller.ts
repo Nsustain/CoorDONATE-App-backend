@@ -3,7 +3,7 @@ import AppDataSource from '../config/ormconfig';
 import { Repository } from 'typeorm';
 import { MessageSerializer } from '../serializers/messageSerializers';
 import { Message } from '../entities/message.entity';
-import { deleteMessage, getMessagesByChatRoom, sendMessage } from '../services/message.service';
+import { deleteMessage, getMessagesByChatRoom, saveMessage } from '../services/message.service';
 import { findChatById } from '../services/chat.service';
 import AppError from '../utils/appError';
 
@@ -28,7 +28,7 @@ class MessageController {
                 return next(new AppError(403, "User is not a member of the ChatRoom"));
             }
 
-            message = await sendMessage(message); 
+            message = await saveMessage(message); 
             
             return res.status(201).json(this.serializer.serialize(message))
 

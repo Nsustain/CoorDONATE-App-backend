@@ -4,7 +4,7 @@ import { ChatRoom } from '../entities/chat.entity';
 
 const messageRepository = AppDataSource.getRepository(Message);
 
-export const sendMessage = async (message: Message) => {
+export const saveMessage = async (message: Message) => {
     return (await messageRepository.save(messageRepository.create(message))) as Message;
 }
 
@@ -30,6 +30,6 @@ export const getMessagesByChatRoom = async (chatRoom: ChatRoom) => {
     return messages
 }
 
-export const deleteMessage = async(messageId: string) => {
+export const deleteMessage = async (messageId: string) => {
     return await messageRepository.delete({id: messageId});
 }

@@ -10,7 +10,7 @@ export default class UserSerializer extends Serializer<User, any>{
 			"name": instance.name,
 			"email": instance.email,
 			"verified": instance.verified,
-			"role": instance.role
+			"role": instance.role,
 		}
 	}
 	deserialize(data: any): User {
