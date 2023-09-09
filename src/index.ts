@@ -9,13 +9,13 @@ import authRouter from './routes/auth.routes.ts';
 import userRouter from './routes/user.routes.ts';
 import handle404 from './routes/404.routes.ts';
 import AppError from './utils/appError.ts';
-import validateEnv from './utils/validateEnv.ts';
 import postRouter from './routes/post.routes.ts';
 import chatRouter from './routes/chat.routes.ts';
 import messageRouter from './routes/message.route.ts';
 import { Server } from 'socket.io';
 import { AuthConfig } from './config/authConfig.ts';
 import SocketController from './websockets/socketController.ts';
+import SocketMiddleware from './websockets/socketMiddleware.ts';
 
 require('dotenv').config();
 
@@ -73,7 +73,7 @@ AppDataSource.initialize()
 
 
     // create http server
-    const ioServer = http.createServer(app, );
+    const ioServer = http.createServer(app);
     // create socket.io server
     const io = new Server(ioServer, {
       cors: {
@@ -83,9 +83,15 @@ AppDataSource.initialize()
         credentials: true,
       },
     });
+    
+    // Attach the middleware to the Socket.IO server
+    io.use((socket, next) => {
+      new SocketMiddleware(socket, next);
+    });
 
     // Socket Handling
-    const socketController = new SocketController(io)
+    const socketController = new SocketController(io);
+
 
     const port = parseInt(process.env.PORT || '4000', 10);
 
