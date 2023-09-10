@@ -5,7 +5,7 @@ import { User } from "../entities/user.entity";
 import UserSerializer from "./userSerializer";
 
 
-export class PostImageSerializer extends Serializer<PostImage, string>{
+export class PostImageSerializer extends Serializer<PostImage, any>{
 	
 	serialize(instance: PostImage): string {
 		return instance.url;
@@ -16,6 +16,11 @@ export class PostImageSerializer extends Serializer<PostImage, string>{
 		image.url = data;
 		return image;
 	}
+
+	deserializePromise(data: any): Promise<PostImage> {
+		throw new Error("Method not implemented.");
+	}
+
 
 }
 
@@ -41,6 +46,10 @@ export class PostSerializer extends Serializer<Post, any>{
 		post.contentImages = this.imageSerializer.deserializeMany(data.content_images);
 		return post;
 
+	}
+
+	deserializePromise(data: any): Promise<Post> {
+		throw new Error("Method not implemented.");
 	}
 
 	protected getValidations(): ValidationChain[] {

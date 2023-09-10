@@ -6,15 +6,15 @@ import {
   findUserByEmail,
   findUserById,
   signTokens,
-} from '../services/user.service';
-import AppError from '../utils/appError';
-import { User } from '../entities/user.entity';
-import { signJwt, verifyJwt } from '../utils/jwt';
-import AppDataSource from '../config/ormconfig';
-import UserSession from '../entities/user.session';
-import UtilsProvider from '../di/utilProviders';
-import { KeyFunction } from '../utils/keyFactory';
-import UserSerializer from '../serializers/userSerializer';
+} from '../services/user.service.ts';
+import AppError from '../utils/appError.ts';
+import { User } from '../entities/user.entity.ts';
+import { signJwt, verifyJwt } from '../utils/jwt.ts';
+import AppDataSource from '../config/ormconfig.ts';
+import UserSession from '../entities/user.session.ts';
+import { KeyFunction } from '../utils/keyFactory.ts';
+import UserSerializer from '../serializers/userSerializer.ts';
+import { AuthConfig } from '../config/authConfig.ts';
 
 const cookiesOptions: CookieOptions = {
   httpOnly: true,
@@ -23,22 +23,21 @@ const cookiesOptions: CookieOptions = {
 
 
 const userSessionRepository = AppDataSource.getRepository(UserSession);
-// if (process.env.NODE_ENV === 'production') cookiesOptions.secure = true;
 
 const accessTokenCookieOptions: CookieOptions = {
   ...cookiesOptions,
   expires: new Date(
-    Date.now() + config.get<number>('accessTokenExpiresIn') * 60 * 1000
+    Date.now() + AuthConfig.ACCESS_TOKEN_EXPIRES_IN * 60 * 1000
   ),
-  maxAge: config.get<number>('accessTokenExpiresIn') * 60 * 1000,
+  maxAge: AuthConfig.ACCESS_TOKEN_EXPIRES_IN * 60 * 1000,
 };
 
 const refreshTokenCookieOptions: CookieOptions = {
   ...cookiesOptions,
   expires: new Date(
-    Date.now() + config.get<number>('refreshTokenExpiresIn') * 60 * 1000
+    Date.now() + AuthConfig.REFRESH_TOKEN_EXPIRES_IN * 60 * 1000
   ),
-  maxAge: config.get<number>('refreshTokenExpiresIn') * 60 * 1000,
+  maxAge: AuthConfig.REFRESH_TOKEN_EXPIRES_IN * 60 * 1000,
 };
 
 
@@ -50,17 +49,21 @@ export const registerUserHandler = async (
   next: NextFunction
 ) => {
   try {
-    const { name, password, email } = req.body;
+    const { name, username, password, email } = req.body;
 
     const user = await createUser({
       name,
+      username,
       email: email.toLowerCase(),
       password,
+
     });
+
+
     res.status(201).json({
       status: 'success',
       data: {
-        user,
+          user,
       },
     });
   } catch (err: any) {
@@ -171,7 +174,7 @@ export const refreshAccessTokenHandler = async (
 
     // Sign new access token
     const accessToken = signJwt({ sub: user.id }, KeyFunction.access, {
-      expiresIn: `${config.get<number>('accessTokenExpiresIn')}m`,
+      expiresIn: `${AuthConfig.ACCESS_TOKEN_EXPIRES_IN}m`,
     });
 
     // Set access token cookie
