@@ -20,6 +20,7 @@ export const findChatById = async (chatId: string) => {
   return await chatRepository.findOne({ where: {id: chatId}, 
   relations: [
       "members",
+      "groupOwner",
       "messages",
       "messages.sender",
       "messages.receiverRoom"

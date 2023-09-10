@@ -23,7 +23,6 @@ const cookiesOptions: CookieOptions = {
 
 
 const userSessionRepository = AppDataSource.getRepository(UserSession);
-// if (process.env.NODE_ENV === 'production') cookiesOptions.secure = true;
 
 const accessTokenCookieOptions: CookieOptions = {
   ...cookiesOptions,
@@ -50,17 +49,21 @@ export const registerUserHandler = async (
   next: NextFunction
 ) => {
   try {
-    const { name, password, email } = req.body;
+    const { name, username, password, email } = req.body;
 
     const user = await createUser({
       name,
+      username,
       email: email.toLowerCase(),
       password,
+
     });
+
+
     res.status(201).json({
       status: 'success',
       data: {
-        user,
+          user,
       },
     });
   } catch (err: any) {

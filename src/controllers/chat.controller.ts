@@ -79,12 +79,18 @@ class ChatController {
       const existingChat = await this.repository.createQueryBuilder('chat')
       .leftJoinAndSelect('chat.members', 'member')
       .where('member.id IN (:...memberIds)', { memberIds: chat.members.map(member => member.id) })
+      .andWhere('chat.isGroup = :isGroup', { isGroup: chat.isGroup })
       .getOne();
 
 
     if (existingChat) {
-      return res.status(200).json(this.serializer.serialize(existingChat)); // Return the existing chat
+      // Return the existing chat
+      return res.status(200).json(this.serializer.serialize(existingChat)); 
     }
+
+      if (chat.isGroup){
+        chat.groupOwner = res.locals.user
+      }
 
       chat = await createChat(chat);
 

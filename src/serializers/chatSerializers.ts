@@ -1,3 +1,4 @@
+import { isGeneratorObject } from "util/types";
 import { ChatRoom } from "../entities/chat.entity";
 import { findUserById } from "../services/user.service";
 import AppError from "../utils/appError";
@@ -9,11 +10,22 @@ const messageSerializer = new MessageSerializer();
 const userSerializer = new UserSerializer();
 export class ChatSerializer extends Serializer<ChatRoom, any> {
     serialize(instance: ChatRoom) {
-        return {
-            "id" : instance.id, 
-            "members": instance.members ? userSerializer.serializeMany(instance.members) : [],
-            "messages": instance.messages ? messageSerializer.serializeMany(instance.messages) : [],
-        };
+        return instance.isGroup ?
+        {
+          "id" : instance.id, 
+          "groupName": instance.groupName ? instance.groupName : '',
+          "description": instance.description ? instance.description : '',
+          "isGroup": instance.isGroup, 
+          "groupProfile": instance.groupProfile,
+          "groupOwner":  instance.groupOwner ? userSerializer.serialize(instance.groupOwner) : '',
+          "members": instance.members ? userSerializer.serializeMany(instance.members) : [],
+          "messages": instance.messages ? messageSerializer.serializeMany(instance.messages) : [],
+        } : {
+          "id" : instance.id, 
+          "isGroup": instance.isGroup,
+          "members": instance.members ? userSerializer.serializeMany(instance.members) : [],
+          "messages": instance.messages ? messageSerializer.serializeMany(instance.messages) : [],
+        }
     }
 
     deserialize(data: any): ChatRoom {
@@ -24,6 +36,7 @@ export class ChatSerializer extends Serializer<ChatRoom, any> {
     async deserializePromise(data: any): Promise<ChatRoom> {
         const chat = new ChatRoom();
         
+
         // desealizer users
         const memberIds = data.members;
         const memberPromises = memberIds.map(async (memberId: string) => {
@@ -35,10 +48,17 @@ export class ChatSerializer extends Serializer<ChatRoom, any> {
         });
       
         chat.members = await Promise.all(memberPromises);
-      
+        chat.isGroup = data.isGroup;
         // desealizer messages
         chat.messages = []
-        
+
+        if (chat.isGroup){
+          chat.description = data.description;
+          chat.groupName = data.groupName;
+          chat.groupOwner = data.groupOwner;
+          chat.groupProfile = data.groupProfile;
+        }
+
         return chat;
       }
 }

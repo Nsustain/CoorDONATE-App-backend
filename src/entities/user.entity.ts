@@ -5,7 +5,7 @@
   import { ChatRoom } from './chat.entity.ts';
   import { Message } from './message.entity.ts';
 
-  enum RoleEnumType {
+  export enum RoleEnumType {
     USER = 'user',
     ADMIN = 'admin',
   }
@@ -18,6 +18,9 @@
     @Index('email_index')
     @Column({ unique: true })
     email!: string;
+
+    @Column({unique: true})
+    username!: string;
 
     @Column()
     password!: string;
@@ -32,14 +35,14 @@
     @Column({ default: false })
     verified!: boolean;
 
+    @Column({ nullable: true, default: '' })
+    profilePic!: string;
+
     @OneToMany(() => Post, (post) => post.postedBy)
     posts!: Post[];
 
     @OneToMany(() => Like, (like) => like.user)
     likedPosts!: Like[];
-
-    // @OneToMany(() => ChatRoom, (chat) => chat.members)
-    // chats!: ChatRoom[];
 
     // Todo: make it manyTomany
     @OneToMany(() => ChatRoom, (chat) => chat.members)
