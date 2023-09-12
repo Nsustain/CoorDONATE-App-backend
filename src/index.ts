@@ -16,6 +16,7 @@ import { Server } from 'socket.io';
 import { AuthConfig } from './config/authConfig.ts';
 import SocketController from './websockets/socketController.ts';
 import SocketMiddleware from './websockets/socketMiddleware.ts';
+import profileRouter from './routes/profile.routes.ts';
 
 require('dotenv').config();
 
@@ -52,6 +53,7 @@ AppDataSource.initialize()
 	  app.use("/api/post", postRouter);
     app.use("/api/chat", chatRouter);
     app.use('/api/message', messageRouter);
+    app.use("/api/profiles", profileRouter);
 
     // UNHANDLED ROUTE
     app.all('*', handle404);

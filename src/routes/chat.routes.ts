@@ -11,6 +11,7 @@ chatRouter.post('/create', chatController.create);
 chatRouter.get('/:userId', chatController.getAllChats);
 chatRouter.delete('/:roomId', chatController.delete);
 chatRouter.get('/details/:roomId', chatController.getChatDetails);
+chatRouter.post('/search', chatController.searchChats)
 
 
 export default chatRouter;

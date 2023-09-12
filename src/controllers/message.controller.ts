@@ -3,7 +3,7 @@ import AppDataSource from '../config/ormconfig';
 import { Repository } from 'typeorm';
 import { MessageSerializer } from '../serializers/messageSerializers';
 import { Message } from '../entities/message.entity';
-import { deleteMessage, getMessagesByChatRoom, saveMessage } from '../services/message.service';
+import { deleteMessage, editMessage, findMessageById, getMessagesByChatRoom, saveMessage, searchMessagesInChatRoom } from '../services/message.service';
 import { findChatById } from '../services/chat.service';
 import AppError from '../utils/appError';
 
@@ -39,11 +39,56 @@ class MessageController {
 
     public deleteMessage = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            await deleteMessage(req.body.messageId);
+
+            const userId = res.locals.user.id;
+            const { messageId } = req.params;
+
+            let message: Message | null = await findMessageById(messageId);
+
+            if(!message) {
+                return next(new AppError(404, "Message not found!"));
+            }
+
+            if (message.sender.id !== userId) {
+                return next(new AppError(401, "You aren't authorized to delete this chat!"));
+            } 
+
+            await deleteMessage(messageId);
+
+            return res.status(204).send();
+
         }catch(err) {
             next(err)
         }
     };
+
+    public editMessage = async (req: Request, res: Response, next: NextFunction) => {
+
+        try {
+            
+            const { messageId } = req.params;
+            const newContent = req.body.content;
+            const userId = res.locals.user.id;
+
+            const message = await findMessageById(messageId);
+            
+            if (!message) {
+                return next(new AppError(404, "Message not found!"));
+            }
+            
+            if (message.sender.id !== userId) {
+                return next(new AppError(401, "You aren't authorized to delete this chat!"));
+            } 
+            
+            const newMessage = await editMessage(messageId, newContent);
+            
+            return res.status(200).json(this.serializer.serialize(newMessage));
+
+        }catch(err) {
+            next(err);
+        }
+
+    }
 
     public getMessagesByChatRoomId = async (req: Request, res: Response, next: NextFunction) => {
         try {
@@ -53,7 +98,7 @@ class MessageController {
             // get chatroom object
             const chatRoom = await findChatById(chatRoomId);
             if (!chatRoom) {
-                return next(new AppError(404, "chatroom doesn't exist"));
+                return new AppError(404, "chatroom doesn't exist");
             }
 
             const messages = await getMessagesByChatRoom(chatRoom);
@@ -68,6 +113,36 @@ class MessageController {
             next(err)
         }
     };
+
+    public searchMessage = async (req: Request, res: Response, next: NextFunction) => {
+
+        try{
+
+            const { chatRoomId }  = req.params
+            const { query } = req.query;
+
+            const chatRoom = await findChatById(chatRoomId);
+
+            if (!chatRoom) {
+                return next(new AppError(404, "ChatRoom not found"))
+            }
+            
+            // check if the current user is a member
+            const isMember = chatRoom.members.some(member => member.id === res.locals.user.id);
+            
+            if (!isMember) {
+                return next(new AppError(403, "User is not a member of the ChatRoom"));
+            }
+
+
+            const matchingMessages = await searchMessagesInChatRoom(chatRoomId, query);
+
+            return res.status(200).json(this.serializer.serializeMany(matchingMessages));
+
+        }catch(err) {
+            next(err)
+        }
+    }
 }
 
 export const messageController = new MessageController;
