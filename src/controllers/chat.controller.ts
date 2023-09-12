@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from 'express';
 import { ChatSerializer } from '../serializers/chatSerializers';
 import AppDataSource from '../config/ormconfig';
 import { ChatRoom } from '../entities/chat.entity';
-import { Repository } from 'typeorm';
+import { Brackets, Repository } from 'typeorm';
 import { createChat, deleteChat, findChatById, findChatByUserId } from '../services/chat.service';
 import AppError from '../utils/appError';
 import { findUserById } from '../services/user.service';
@@ -75,17 +75,22 @@ class ChatController {
       // Todo: remove message from request body
       let chat = await this.serializer.deserializePromise(req.body);
 
-      // check if the chat already exists 
-      const existingChat = await this.repository.createQueryBuilder('chat')
-      .leftJoinAndSelect('chat.members', 'member')
-      .where('member.id IN (:...memberIds)', { memberIds: chat.members.map(member => member.id) })
-      .andWhere('chat.isGroup = :isGroup', { isGroup: chat.isGroup })
-      .getOne();
+      // check if the chat already exists with the same members and isGroup property
+      const memberIds = chat.members.map(member => member.id);
 
+      const existingChat = await this.repository.createQueryBuilder('chat')
+        .leftJoin('chat.members', 'member')
+        .where('chat.isGroup = :isGroup', { isGroup: chat.isGroup })
+        .andWhere('member.id IN (:...memberIds)', { memberIds: memberIds })
+        .groupBy('chat.id')
+        .having('COUNT(DISTINCT member.id) = :memberCount', { memberCount: memberIds.length })
+        .getOne();
 
     if (existingChat) {
+      const chatId = existingChat.id;
+      const chat = await findChatById(chatId);
       // Return the existing chat
-      return res.status(200).json(this.serializer.serialize(existingChat)); 
+      return res.status(200).json(this.serializer.serialize(chat!)); 
     }
 
       if (chat.isGroup){
@@ -135,8 +140,34 @@ class ChatController {
     }
   }
 
-}
+  public searchChats = async (req: Request, res: Response, next: NextFunction) => {
 
+    try{
+      const {query} = req.query;
+      const userId = res.locals.user.id;
+
+      let chatRoomsQuery = this.repository
+      .createQueryBuilder('chatRoom')
+      .leftJoinAndSelect('chatRoom.members', 'members');
+
+      if (query) {
+         // Search for chat rooms based on group name and member username, excluding the current searching user for one-to-one chats
+        chatRoomsQuery = chatRoomsQuery.where('(chatRoom.groupName ILIKE :query AND chatRoom.isGroup = true) OR (chatRoom.isGroup = false AND members.username ILIKE :query AND members.id != :userId)', { query: `%${query}%`, userId: userId });
+      }
+      
+      const chatRooms = await chatRoomsQuery.getMany();
+
+      return res.status(200).json(this.serializer.serializeMany(chatRooms));
+
+      }catch(err){
+        
+        next(err);
+
+      }
+
+  }
+
+}
 
 
 

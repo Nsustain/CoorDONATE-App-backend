@@ -12,7 +12,7 @@ export default class UserSerializer extends Serializer<User, any>{
 			"username": instance.username,
 			"verified": instance.verified,
 			"role": instance.role,
-			"profilePic": instance.profilePic
+			"profilePic": instance.profile?.profilePic
 		}
 	}
 	deserialize(data: any): User {

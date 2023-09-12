@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 import { DataSource } from 'typeorm';
 import UserSession from '../entities/user.session';
-import { User } from '../entities/user.entity';
+import { Profile, User } from '../entities/user.entity';
 import { Post, PostImage, Comment, Like } from '../entities/post.entity';
 import { ChatRoom } from '../entities/chat.entity';
 import { Message } from '../entities/message.entity';
@@ -15,7 +15,7 @@ const AppDataSource = new DataSource({
   database: 'coordonate',
   synchronize: true,
   logging: true,
-  entities: [User, UserSession, Post, PostImage, Comment, Like, ChatRoom, Message],
+  entities: [User, UserSession, Post, PostImage, Comment, Like, ChatRoom, Message, Profile],
   subscribers: [],
   migrations: [],
 });
