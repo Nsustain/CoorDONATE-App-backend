@@ -8,6 +8,8 @@ const profileRouter = express.Router();
 profileRouter.use(deserializeUser, requireUser);
 
 profileRouter.post('/', profileController.createProfile);
-
+profileRouter.get('/:userId', profileController.getProfile);
+profileRouter.put('/:userId', profileController.editProfile);
+profileRouter.delete('/:userId', profileController.deleteProfile);
 
 export default profileRouter;
