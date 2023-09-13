@@ -9,6 +9,7 @@ export class ProfileSerializer extends Serializer<Profile, any> {
 
     serialize(instance: Profile) {
         return {
+            "id": instance.id,
             "name" : instance.name,
             "profilePic" : instance.profilePic,
             "shortBio" : instance.shortBio,
@@ -19,7 +20,7 @@ export class ProfileSerializer extends Serializer<Profile, any> {
             "targetAudience" : instance.targetAudience,
             "location" : instance.location,
             "organizationType" : instance.organizationType,
-            "user" : userSerializer.serialize(instance.user),
+            "user" : instance.user ? userSerializer.serialize(instance.user) : {},
         }
     }
 

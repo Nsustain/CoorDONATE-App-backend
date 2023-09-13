@@ -42,8 +42,7 @@
     @Column({ default: false })
     verified!: boolean;
 
-    @OneToOne(() => Profile, { cascade: true, eager: true })
-    @JoinColumn()
+    @OneToOne(() => Profile, (profile) => profile.user, { cascade: true, eager: true })
     profile!: Profile | null;
 
     @OneToMany(() => Post, (post) => post.postedBy)
@@ -106,6 +105,7 @@ export class Profile extends Model {
   @Column({ nullable: true })
   location!: string;
 
-  @OneToOne(() => User, (user) => user.profile)
+  @OneToOne(() => User, (user) => user.profile, { nullable: false })
+  @JoinColumn()
   user!: User;
 }
