@@ -56,7 +56,7 @@ AppDataSource.initialize()
     app.use("/api/chat", chatRouter);
     app.use('/api/message', messageRouter);
     app.use('/api/upload', uploadRouter);
-    app.use('/api/profile', profileRouter);
+    app.use('/api/profiles', profileRouter);
 
     // UNHANDLED ROUTE
     app.all('*', handle404);
