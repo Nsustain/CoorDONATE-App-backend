@@ -4,9 +4,9 @@ import { findUserById } from "../services/user.service";
 import AppError from "../utils/appError";
 import Serializer from "./serializer";
 
-export class MessageSerializer extends SerializerPromise<Message, any> {
+export class MessageSerializer extends Serializer<Message, any> {
     
-    serializePromise(instance: Message) {
+    serialize(instance: Message) {
         return {
             "id" : instance.id,
             "sender" : instance.sender.id,

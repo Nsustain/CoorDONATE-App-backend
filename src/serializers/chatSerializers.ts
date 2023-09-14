@@ -34,6 +34,11 @@ export class ChatSerializer extends Serializer<ChatRoom, any> {
       
     }
 
+    deserialize(data: any): ChatRoom {
+		  throw new Error("Method not implemented.");
+      
+    }
+
     async deserializePromise(data: any): Promise<ChatRoom> {
         const chat = new ChatRoom();
         
