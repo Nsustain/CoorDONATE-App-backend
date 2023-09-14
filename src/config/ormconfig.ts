@@ -8,11 +8,11 @@ import { Message } from '../entities/message.entity';
 
 const AppDataSource = new DataSource({
   type: 'postgres',
-  host: 'localhost',
+  host: "surus.db.elephantsql.com",
   port: 5432,
-  username: 'coordev',
-  password: '12345678',
-  database: 'coordonate',
+  username: "rptkdabe",
+  password: "pdSRv8SL0CTMbgLIE90virYER-CY98eq",
+  database: "rptkdabe",
   synchronize: true,
   logging: true,
   entities: [User, UserSession, Post, PostImage, Comment, Like, ChatRoom, Message, Profile],
