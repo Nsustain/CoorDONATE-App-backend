@@ -16,6 +16,8 @@ import { Server } from 'socket.io';
 import { AuthConfig } from './config/authConfig.ts';
 import SocketController from './websockets/socketController.ts';
 import SocketMiddleware from './websockets/socketMiddleware.ts';
+import multarError from './utils/multarError.ts';
+import uploadRouter from './routes/upload.routes.ts';
 
 require('dotenv').config();
 
@@ -52,6 +54,7 @@ AppDataSource.initialize()
 	  app.use("/api/post", postRouter);
     app.use("/api/chat", chatRouter);
     app.use('/api/message', messageRouter);
+    app.use('/api/upload', uploadRouter);
 
     // UNHANDLED ROUTE
     app.all('*', handle404);
@@ -59,6 +62,8 @@ AppDataSource.initialize()
     // GLOBAL ERROR HANDLER
     app.use(
       (error: AppError, _req: Request, res: Response, _next: NextFunction) => {
+        // check if it's multar error
+        multarError(error, _req, res);
         // eslint-disable-next-line no-param-reassign
         error.status = error.status || 'error';
         // eslint-disable-next-line no-param-reassign
