@@ -1,10 +1,10 @@
 import 'reflect-metadata';
 import { DataSource } from 'typeorm';
-import UserSession from '../entities/user.session.ts';
-import { User } from '../entities/user.entity.ts';
-import { Post, PostImage, Comment, Like } from '../entities/post.entity.ts';
-import { ChatRoom } from '../entities/chat.entity.ts';
-import { Message } from '../entities/message.entity.ts';
+import UserSession from '../entities/user.session';
+import { User } from '../entities/user.entity';
+import { Post, PostImage, Comment, Like } from '../entities/post.entity';
+import { ChatRoom } from '../entities/chat.entity';
+import { Message } from '../entities/message.entity';
 
 const AppDataSource = new DataSource({
   type: 'postgres',

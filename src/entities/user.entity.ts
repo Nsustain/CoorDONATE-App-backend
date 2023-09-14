@@ -1,9 +1,9 @@
   import { Entity, Column, Index, BeforeInsert, ManyToOne, OneToMany, ManyToMany } from 'typeorm';
   import bcrypt from 'bcryptjs';
-  import Model from './model.entity.ts';
-  import { Like, Post } from './post.entity.ts';
-  import { ChatRoom } from './chat.entity.ts';
-  import { Message } from './message.entity.ts';
+  import Model from './model.entity';
+  import { Like, Post } from './post.entity';
+  import { ChatRoom } from './chat.entity';
+  import { Message } from './message.entity';
 
   export enum RoleEnumType {
     USER = 'user',

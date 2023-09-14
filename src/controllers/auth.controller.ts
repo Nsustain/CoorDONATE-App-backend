@@ -1,20 +1,20 @@
 import config from 'config';
 import { CookieOptions, NextFunction, Request, Response } from 'express';
-import { CreateUserInput, LoginUserInput } from '../schemas/user.schema.ts';
+import { CreateUserInput, LoginUserInput } from '../schemas/user.schema';
 import {
   createUser,
   findUserByEmail,
   findUserById,
   signTokens,
-} from '../services/user.service.ts';
-import AppError from '../utils/appError.ts';
-import { User } from '../entities/user.entity.ts';
-import { signJwt, verifyJwt } from '../utils/jwt.ts';
-import AppDataSource from '../config/ormconfig.ts';
-import UserSession from '../entities/user.session.ts';
-import { KeyFunction } from '../utils/keyFactory.ts';
-import UserSerializer from '../serializers/userSerializer.ts';
-import { AuthConfig } from '../config/authConfig.ts';
+} from '../services/user.service';
+import AppError from '../utils/appError';
+import { User } from '../entities/user.entity';
+import { signJwt, verifyJwt } from '../utils/jwt';
+import AppDataSource from '../config/ormconfig';
+import UserSession from '../entities/user.session';
+import { KeyFunction } from '../utils/keyFactory';
+import UserSerializer from '../serializers/userSerializer';
+import { AuthConfig } from '../config/authConfig';
 
 const cookiesOptions: CookieOptions = {
   httpOnly: true,

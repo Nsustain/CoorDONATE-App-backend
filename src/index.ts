@@ -5,19 +5,19 @@ import http from 'http'
 import cookieParser from 'cookie-parser';
 // eslint-disable-next-line import/extensions, node/no-missing-import
 import AppDataSource from './config/ormconfig';
-import authRouter from './routes/auth.routes.ts';
-import userRouter from './routes/user.routes.ts';
-import handle404 from './routes/404.routes.ts';
-import AppError from './utils/appError.ts';
-import postRouter from './routes/post.routes.ts';
-import chatRouter from './routes/chat.routes.ts';
-import messageRouter from './routes/message.route.ts';
+import authRouter from './routes/auth.routes';
+import userRouter from './routes/user.routes';
+import handle404 from './routes/404.routes';
+import AppError from './utils/appError';
+import postRouter from './routes/post.routes';
+import chatRouter from './routes/chat.routes';
+import messageRouter from './routes/message.route';
 import { Server } from 'socket.io';
-import { AuthConfig } from './config/authConfig.ts';
-import SocketController from './websockets/socketController.ts';
-import SocketMiddleware from './websockets/socketMiddleware.ts';
-import multarError from './utils/multarError.ts';
-import uploadRouter from './routes/upload.routes.ts';
+import { AuthConfig } from './config/authConfig';
+import SocketController from './websockets/socketController';
+import SocketMiddleware from './websockets/socketMiddleware';
+import multarError from './utils/multarError';
+import uploadRouter from './routes/upload.routes';
 
 require('dotenv').config();
 

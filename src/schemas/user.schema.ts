@@ -1,5 +1,5 @@
 import { object, string, TypeOf, z } from 'zod';
-import { RoleEnumType } from '../entities/user.entity.ts';
+import { RoleEnumType } from '../entities/user.entity';
 
 export const createUserSchema = object({
   body: object({
