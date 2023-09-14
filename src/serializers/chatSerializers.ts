@@ -33,6 +33,7 @@ export class ChatSerializer extends Serializer<ChatRoom, any> {
       
     }
 
+
     async deserializePromise(data: any): Promise<ChatRoom> {
         const chat = new ChatRoom();
         

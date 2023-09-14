@@ -5,6 +5,7 @@ import Serializer from "./serializer";
 
 export default class UserSerializer extends Serializer<User, any>{
 	serialize(instance: User) {
+		console.log("i'm here user", instance)
 		return {
 			"id": instance.id,
 			"name": instance.name,
@@ -12,7 +13,7 @@ export default class UserSerializer extends Serializer<User, any>{
 			"username": instance.username,
 			"verified": instance.verified,
 			"role": instance.role,
-			"profilePic": instance.profilePic
+			"profilePic": instance.profile?.profilePic
 		}
 	}
 	deserialize(data: any): User {

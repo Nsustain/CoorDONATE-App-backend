@@ -41,9 +41,6 @@ export const findChats = async (query: Object) => {
   return await chatRepository.find(query);
 };
 
-export const deleteChat = async (roomId: string) => {
-  return await chatRepository.delete(roomId)
-}
 
 // Add a member to an existing chat
 export const addMemberToChat = async (chatId: string, member: User) => {
@@ -84,3 +81,8 @@ export const removeMemberFromChat = async (chatId: string, memberId: string) => 
 
   return await chatRepository.save(chat);
 };
+
+export const deleteChat = async (roomId: string) => {
+  return await chatRepository.delete(roomId)
+}
+

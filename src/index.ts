@@ -18,6 +18,7 @@ import SocketController from './websockets/socketController';
 import SocketMiddleware from './websockets/socketMiddleware';
 import multarError from './utils/multarError';
 import uploadRouter from './routes/upload.routes';
+import profileRouter from './routes/profile.routes';
 
 require('dotenv').config();
 
@@ -55,6 +56,7 @@ AppDataSource.initialize()
     app.use("/api/chat", chatRouter);
     app.use('/api/message', messageRouter);
     app.use('/api/upload', uploadRouter);
+    app.use('/api/profiles', profileRouter);
 
     // UNHANDLED ROUTE
     app.all('*', handle404);
