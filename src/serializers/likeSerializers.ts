@@ -13,8 +13,9 @@ export class LikeSerializer extends SerializerPromise<Like, any> {
   serializePromise(instance: Like) {
     return {
       id: instance.id,
-      user: instance.user,
+      user: instance.user.id,
       likedAt: instance.likedAt,
+      post: instance.post.id
     };
   }
 
@@ -25,7 +26,7 @@ export class LikeSerializer extends SerializerPromise<Like, any> {
       throw new AppError(404, 'User not found');
     }
 
-    const post = await getPostById(data.postid);
+    const post = await getPostById(data.postId);
     if (!post) {
       throw new AppError(404, "Post doesn't exist");
     }
@@ -33,7 +34,7 @@ export class LikeSerializer extends SerializerPromise<Like, any> {
     like.id = data.id;
     like.user = user;
     (like.post = post),
-      (like.liked = data.liked),
+      (like.liked = data.data || true),
       (like.likedAt = data.likedAt || likedAt);
     return like;
   }

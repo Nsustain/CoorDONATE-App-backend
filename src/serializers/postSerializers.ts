@@ -30,14 +30,13 @@ export class PostSerializer extends Serializer<Post, any> {
   private userSerializer = new UserSerializer();
 
   serialize(instance: Post) {
-    console.log('this is the instance I got', instance);
     return {
       id: instance.id,
       contentText: instance.contentText,
       images: this.imageSerializer.serializeMany(instance.contentImages),
       likes: instance.likes,
       comments: instance.comments,
-      user: this.userSerializer.serialize(instance.postedBy),
+      postedBy: this.userSerializer.serialize(instance.postedBy),
     };
   }
 
@@ -51,7 +50,6 @@ export class PostSerializer extends Serializer<Post, any> {
   }
 
   async deserializePromise(data: any): Promise<Post> {
-    console.log('this is the data I got', data);
     const post = new Post();
     const user = data.postedBy;
     if (!user) {
@@ -62,7 +60,7 @@ export class PostSerializer extends Serializer<Post, any> {
       (post.contentText = data.contentText),
       (post.comments = data.comments),
       (post.likes = data.likes);
-    console.log(post, 'post in deserializer');
+      post.id = data.id;
     return post;
   }
 

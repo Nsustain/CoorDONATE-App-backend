@@ -16,13 +16,13 @@ postRouter.get('/posts', postController.getPostsByUser);
 postRouter.delete('/:postId', postController.deletePost);
 
 // Comment
-postRouter.post('/comment', commentController.commentOnPost);
+postRouter.post('/:postId/comment', commentController.commentOnPost);
 postRouter.get('/:postId/comments', commentController.getAllCommentsOnPost);
 postRouter.put('/comments/:commentId', commentController.updateComment);
 postRouter.delete('/comments/:commentId', commentController.deleteComment);
 
 // Like
-postRouter.post('/like', likeController.likeOnPost);
+postRouter.post('/:postId/like', likeController.likeOnPost);
 postRouter.get('/:postId/likes', likeController.getAllLikes);
 postRouter.delete('/likes/:likeId', likeController.removeLike);
 

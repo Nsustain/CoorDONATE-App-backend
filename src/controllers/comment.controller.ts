@@ -20,8 +20,17 @@ class CommentController {
     res: Response,
     next: NextFunction
   ) => {
+    const { user, content } = req.body;
+    const { postId } = req.params;
+
+    const data = {
+      content: content,
+      postId: postId,
+      userId: user,
+    };
+
     try {
-      let comment = await this.serializer.deserializePromise(req.body);
+      let comment = await this.serializer.deserializePromise(data);
       comment = await commentOnPost(comment);
       return res.status(201).json(this.serializer.serializePromise(comment));
     } catch (err) {
@@ -40,14 +49,13 @@ class CommentController {
 
       let serializedcomments = [];
 
-      for (let comment in comments) {
+      for (let comment of comments) {
         serializedcomments.push(
           this.serializer.serializePromise(
             await this.serializer.deserializePromise(comment)
           )
         );
       }
-
       return res.status(200).json(serializedcomments);
     } catch (err) {
       next(err);
@@ -65,7 +73,11 @@ class CommentController {
       const updatedComment = await updateComment(commentId, content);
       return res
         .status(200)
-        .json(await this.serializer.deserializePromise(updatedComment));
+        .json(
+          await this.serializer.serializePromise(
+            await this.serializer.deserializePromise(updatedComment)
+          )
+        );
     } catch (err) {
       next(err);
     }
@@ -79,7 +91,7 @@ class CommentController {
     try {
       const { commentId } = req.params;
       await deleteComment(commentId);
-      return res.status(200).json("comment deleted");
+      return res.status(200).json('comment deleted');
     } catch (err) {
       next(err);
     }

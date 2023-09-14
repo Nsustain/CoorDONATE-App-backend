@@ -4,6 +4,14 @@ import { DeleteResult } from 'typeorm';
 
 const likeRepository = AppDataSource.getRepository(Like);
 
+export const checkExistingLike = async(userId:string, postId:string) => {
+  return await likeRepository
+  .createQueryBuilder('like')
+  .where('like.user = :userId', { userId })
+  .andWhere('like.post = :postId', { postId})
+  .getOne();
+}
+
 export const likeOnAPost = async (like: Like) => {
   return await likeRepository.save(likeRepository.create(like));
 };

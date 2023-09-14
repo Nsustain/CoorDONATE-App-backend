@@ -11,10 +11,11 @@ import { getPostById } from '../services/post.service';
 
 export class CommentSerializer extends SerializerPromise<Comment, any> {
   serializePromise(instance: Comment) {
+    const userSerializer = new UserSerializer();
     return {
       id: instance.id,
-      post: instance.post,
-      user: instance.user,
+      post: instance.post.id,
+      user: userSerializer.serialize(instance.user),
       content: instance.content,
     };
   }
@@ -27,7 +28,7 @@ export class CommentSerializer extends SerializerPromise<Comment, any> {
       throw new AppError(404, 'User not found');
     }
     comment.user = user;
-    const post = await getPostById(data.postid);
+    const post = await getPostById(data.postId);
     if (!post) {
       throw new AppError(404, "Post doesn't exist");
     }
@@ -36,6 +37,7 @@ export class CommentSerializer extends SerializerPromise<Comment, any> {
       throw new AppError(404, "content can't be empty");
     }
     comment.content = data.content;
+    comment.id = data.id
     return comment;
   }
 }

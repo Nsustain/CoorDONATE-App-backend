@@ -38,7 +38,6 @@ class PostController {
       let post = this.serializer.deserialize(req.body);
       post.postedBy = res.locals.user;
       post = await this.createPost(post);
-	  console.log(post, "Before saving the post");
       return res.status(201).json(this.serializer.serialize(post));
     } catch (err) {
       next(err);
@@ -54,7 +53,7 @@ class PostController {
       const { userId } = req.body;
       const posts = await getPostsByUser(userId);
       let serializedPosts = [];
-      console.log(posts);
+
       for (let post of posts) {
         serializedPosts.push(
           this.serializer.serialize(
