@@ -1,4 +1,5 @@
 import {v2 as cloudinary} from 'cloudinary';
+const uuidv4 = require('uuid').v4;
 
 cloudinary.config({ 
   cloud_name: 'dtst6vf66', 
@@ -13,11 +14,14 @@ export const uploadToCloudinary = async (files: Express.Multer.File[]) => {
 
         const uploadPromises = files.map(file => {
             
-            const fileBase64 = file.buffer.toString('base64');
-
-            return cloudinary.uploader.upload(`data:${file.mimetype};base64,${fileBase64}`, {
-              resource_type: 'auto'
-            });
+          const fileBase64 = file.buffer.toString('base64');
+          const uniqueFileName = `${uuidv4()}-${file.originalname}`;
+          const publicId = `coordonate/${uniqueFileName}`;
+    
+          return cloudinary.uploader.upload(`data:${file.mimetype};base64,${fileBase64}`, {
+            resource_type: 'auto',
+            public_id: publicId
+          });
       
         })
 
