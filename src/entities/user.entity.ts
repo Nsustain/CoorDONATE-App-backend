@@ -60,7 +60,7 @@
       return await bcrypt.compare(candidatePassword, hashedPassword);
     }
 
-    toJSON() {
+    toJSON(): object {
       return { ...this, password: undefined, verified: undefined };
     }
   }
