@@ -1,8 +1,5 @@
-import config from 'config';
 import { Comment } from '../entities/post.entity.ts';
 import AppDataSource from '../config/ormconfig.ts';
-import { signJwt } from '../utils/jwt.ts';
-import { KeyFunction } from '../utils/keyFactory.ts';
 
 const commentRepository = AppDataSource.getRepository(Comment);
 export const commentOnPost = async (comment: Comment) => {

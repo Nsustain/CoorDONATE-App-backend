@@ -1,55 +1,34 @@
-import { Like, Post, PostImage, Comment } from '../entities/post.entity';
-import AppDataSource from '../config/ormconfig';
-import AppError from '../utils/appError';
+import config from 'config';
+import { Post, PostImage, Comment, Like } from '../entities/post.entity.ts';
+import AppDataSource from '../config/ormconfig.ts';
+import { signJwt } from '../utils/jwt.ts';
+import { KeyFunction } from '../utils/keyFactory.ts';
 
 const postRepository = AppDataSource.getRepository(Post);
-const contentImagesRepository = AppDataSource.getRepository(PostImage);
-const commentsRepository = AppDataSource.getRepository(Comment);
-const likesRepository = AppDataSource.getRepository(Like);
-
-
-export const createPost = async (input: any) => {
-  return (await AppDataSource.manager.save(
-    AppDataSource.manager.create(Post, input)
-  )) as Post;
+const imageRepository = AppDataSource.getRepository(PostImage);
+const commentRepository = AppDataSource.getRepository(Comment);
+const likeRepository = AppDataSource.getRepository(Like);
+export const getPostById = async (postId: string) => {
+  return await postRepository.findOneBy({ id: postId });
 };
 
-export const findPostById = async (postId: string) => {
-  return await postRepository.findOne({ where: {id: postId}, 
-    relations: [
-        "contentImages",
-        "likes",
-        "comments",
-        "postedBy"
-    ] });
-};
+export const getPostsByUser = async (userId: string) => {
+  return await postRepository
+  .createQueryBuilder("post")
+  .where("post.postedBy = :userId", { userId })
+  .leftJoinAndSelect("post.comments", "comments")
+  .leftJoinAndSelect("post.likes", "likes")
+  .leftJoinAndSelect("post.contentImages", "contentImages")
+  .leftJoinAndSelect("post.postedBy", "postedBy")
+  .getMany();
 
-export const findPosts = async () => {
-  return await postRepository.find();
-};
 
-export const updatePost = async (postId: string, updates: Partial<Post>) => {
-  await postRepository.update({ id: postId }, updates);
+  // return await postRepository.find({ where: { postedBy: { id: userId } } });
 };
 
 export const deletePost = async (postId: string) => {
-
-  const post = await findPostById(postId)
-
-  if (!post) {
-    return new AppError(404, "post not found")
-  }
-      // Delete the related content images
-  await contentImagesRepository.remove(post!.contentImages);
-
-  // Delete the related comments
-  await commentsRepository.remove(post.comments);
-
-  // Delete the related likes
-  await likesRepository.remove(post!.likes);
-
-  // Delete the post
-  await postRepository.delete({ id: postId });
+  await imageRepository.delete({ post: { id: postId } });
+  await commentRepository.delete({ post: { id: postId } });
+  await likeRepository.delete({ post: { id: postId } });
+  return await postRepository.delete(postId);
 };
-
-
