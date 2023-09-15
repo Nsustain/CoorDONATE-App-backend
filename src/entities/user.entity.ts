@@ -15,6 +15,10 @@ import { Like, Post } from './post.entity';
 import { ChatRoom } from './chat.entity';
 import { Message } from './message.entity';
 import { Notification } from './notification.entity';
+<<<<<<< HEAD
+=======
+import { Profile } from './profile.entity';
+>>>>>>> 5a7579d (feat(notification): entity)
 
 export enum RoleEnumType {
   USER = 'user',
@@ -90,6 +94,7 @@ export class User extends Model {
     return { ...this, password: undefined, verified: undefined };
   }
 }
+<<<<<<< HEAD
 
 @Entity('profiles')
 export class Profile extends Model {
@@ -127,3 +132,5 @@ export class Profile extends Model {
   @JoinColumn()
   user!: User;
 }
+=======
+>>>>>>> 5a7579d (feat(notification): entity)
