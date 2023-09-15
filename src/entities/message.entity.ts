@@ -1,11 +1,18 @@
-import { Column, Entity, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  ManyToMany,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { User } from './user.entity';
 import { ChatRoom } from './chat.entity';
 import Model from './model.entity';
 import { Notification } from './notification.entity';
 
 @Entity()
-export class Message extends Model{
+export class Message extends Model {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
@@ -21,6 +28,6 @@ export class Message extends Model{
   @Column()
   content!: string;
 
-  @ManyToMany(() => Notification, (notification) => notification.mNotifications)
-  notifications!: string; 
+  @ManyToMany(() => Notification, (notification) => notification.mNotification)
+  notifications!: string;
 }
