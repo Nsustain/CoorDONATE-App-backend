@@ -1,6 +1,7 @@
 import { Column, Entity, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import Model from "./model.entity";
 import { User } from "./user.entity";
+import { Notification } from "./notification.entity";
 
 
 
@@ -25,6 +26,8 @@ export class Post extends Model{
 	@OneToMany(() => Like, (like) => like.post)
 	likes!: Like[]
 
+	@ManyToMany(() => Notification, (notification) => notification.pNotifications)
+	notifications!: Notification[]
 }
 
 

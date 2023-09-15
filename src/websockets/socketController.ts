@@ -116,11 +116,14 @@ class SocketController {
       // send back the chat history
       const chatHistory = await getMessagesByChatRoom(chat!);
 
-      this.socket.emit('add-success', this.messageSerializer.serializeMany(chatHistory));
+
+      this.socket.emit('add-success', {
+        chatHistory: this.messageSerializer.serializeMany(chatHistory)
+      });
 
       const userSerialized = this.userSerializer.serialize(user);
       return this.io.to(roomId).emit('user-joined', {
-        message: {user: userSerialized, message: `${user.username} has joined the chatRoom`}
+        user: userSerialized, message: `${user.username} has joined the chatRoom`
       })
 
     } catch (err) {
@@ -153,7 +156,9 @@ class SocketController {
        await saveMessage(newMessage);
 
        // send message to other users in that room
-       this.socket.to(roomId).emit('receive-message', this.messageSerializer.serialize(newMessage));
+       this.socket.to(roomId).emit('receive-message', {
+       message: this.messageSerializer.serialize(newMessage)
+      });
 
        return this.socket.emit('send-success')
 
@@ -178,7 +183,9 @@ class SocketController {
 
         await removeMemberFromChat(roomId, userId);
 
-        this.socket.to(roomId).emit('left-room', {userId, roomId});
+        this.socket.to(roomId).emit('left-room', {
+          userId: userId, roomId: roomId});
+
         return this.socket.emit('leave-success', {
           message: `${userId} has left the room.`
         })

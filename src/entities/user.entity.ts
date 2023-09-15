@@ -4,6 +4,7 @@
   import { Like, Post } from './post.entity';
   import { ChatRoom } from './chat.entity';
   import { Message } from './message.entity';
+  import { Notification } from './notification.entity';
 
   export enum RoleEnumType {
     USER = 'user',
@@ -56,6 +57,9 @@
 
     @OneToMany(() => Message, (message) => message.sender)
     sentMessages!: Message[];
+
+    @OneToMany(() => Notification, (notification) => notification.recipient)
+    notifications!: Notification[];
 
     @BeforeInsert()
     async hashPassword() {
