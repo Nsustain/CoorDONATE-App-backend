@@ -1,4 +1,4 @@
-import { Profile } from "../entities/user.entity";
+import { Profile } from "../entities/profile.entity";
 import { findUserById } from "../services/user.service";
 import Serializer from "./serializer";
 import UserSerializer from "./userSerializer";

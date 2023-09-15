@@ -1,7 +1,7 @@
 import { Repository } from "typeorm";
 import AppDataSource from "../config/ormconfig";
-import { Profile } from "../entities/user.entity";
 import { OrganizeImportsMode } from "typescript";
+import { Profile } from "../entities/profile.entity";
 
 class ProfileService {
     private profileRepository: Repository<Profile>;

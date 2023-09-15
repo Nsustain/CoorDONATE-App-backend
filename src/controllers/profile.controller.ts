@@ -1,7 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import { Repository } from "typeorm";
 import { ProfileSerializer } from "../serializers/profileSerializer";
-import { Profile } from "../entities/user.entity";
 import AppDataSource from "../config/ormconfig";
 import { findUserById } from "../services/user.service";
 import ProfileService from '../services/profile.service';
