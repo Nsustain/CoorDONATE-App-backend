@@ -4,6 +4,7 @@
   import { Like, Post } from './post.entity';
   import { ChatRoom } from './chat.entity';
   import { Message } from './message.entity';
+import { Profile } from './profile.entity';
 
   export enum RoleEnumType {
     USER = 'user',
@@ -17,6 +18,7 @@
     DIASPORA = 'Diaspora' 
   }
   
+
   @Entity('users')
   export class User extends Model {
     @Column()
@@ -72,40 +74,3 @@
   }
 
 
-
-@Entity('profiles')
-export class Profile extends Model {
-  @Column()
-  name!: string;
-
-  @Column({ nullable: true, default: '' })
-  profilePic!: string;
-
-  @Column({ nullable: true })
-  shortBio!: string;
-
-  @Column({ nullable: true })
-  ngoDescription!: string;
-
-  @Column({ nullable: true })
-  numberOfParticipants!: number;
-
-  @Column({ nullable: true, type: 'enum', enum: UserTypeEnum })
-  organizationType!: UserTypeEnum;
-
-  @Column({ nullable: true })
-  previousWork!: string;
-
-  @Column({ nullable: true })
-  goals!: string;
-
-  @Column({ nullable: true })
-  targetAudience!: string;
-
-  @Column({ nullable: true })
-  location!: string;
-
-  @OneToOne(() => User, (user) => user.profile, { nullable: false })
-  @JoinColumn()
-  user!: User;
-}
