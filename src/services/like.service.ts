@@ -1,0 +1,30 @@
+import { Like } from '../entities/post.entity.ts';
+import AppDataSource from '../config/ormconfig.ts';
+import { DeleteResult } from 'typeorm';
+
+const likeRepository = AppDataSource.getRepository(Like);
+
+export const checkExistingLike = async(userId:string, postId:string) => {
+  return await likeRepository
+  .createQueryBuilder('like')
+  .where('like.user = :userId', { userId })
+  .andWhere('like.post = :postId', { postId})
+  .getOne();
+}
+
+export const likeOnAPost = async (like: Like) => {
+  return await likeRepository.save(likeRepository.create(like));
+};
+
+export const getAllLikes = async (postId: any): Promise<Like[]> => {
+  const likes = await likeRepository
+    .createQueryBuilder('like')
+    .where('like.post.id = :postId', { postId })
+    .getMany();
+
+  return likes;
+};
+
+export const removeLike = async (likeId: string): Promise<DeleteResult> => {
+  return await likeRepository.delete(likeId);
+};
