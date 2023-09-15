@@ -86,7 +86,6 @@ class SocketController {
     try {
       const chat = await this.chatSerialzier.deserializePromise(data);
       const curr_user = await findUserById(this.userId);
-
       // add currUser to chat
       chat.members.push(curr_user!);
 
