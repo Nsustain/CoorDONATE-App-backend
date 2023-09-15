@@ -1,5 +1,5 @@
-import { Comment } from '../entities/post.entity.ts';
-import AppDataSource from '../config/ormconfig.ts';
+import { Comment } from '../entities/post.entity';
+import AppDataSource from '../config/ormconfig';
 
 const commentRepository = AppDataSource.getRepository(Comment);
 export const commentOnPost = async (comment: Comment) => {

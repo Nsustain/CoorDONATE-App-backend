@@ -1,8 +1,8 @@
 import config from 'config';
-import { Post, PostImage, Comment, Like } from '../entities/post.entity.ts';
-import AppDataSource from '../config/ormconfig.ts';
-import { signJwt } from '../utils/jwt.ts';
-import { KeyFunction } from '../utils/keyFactory.ts';
+import { Post, PostImage, Comment, Like } from '../entities/post.entity';
+import AppDataSource from '../config/ormconfig';
+import { signJwt } from '../utils/jwt';
+import { KeyFunction } from '../utils/keyFactory';
 
 const postRepository = AppDataSource.getRepository(Post);
 const imageRepository = AppDataSource.getRepository(PostImage);

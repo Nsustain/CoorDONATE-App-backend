@@ -1,5 +1,5 @@
-import { Like } from '../entities/post.entity.ts';
-import AppDataSource from '../config/ormconfig.ts';
+import { Like } from '../entities/post.entity';
+import AppDataSource from '../config/ormconfig';
 import { DeleteResult } from 'typeorm';
 
 const likeRepository = AppDataSource.getRepository(Like);
