@@ -1,7 +1,16 @@
 import { Server, Socket } from "socket.io";
 import NotificationService from "../services/notification.service";
 import NotificationSerializer from "../serializers/notificationSerializers";
+import { Message } from "../entities/message.entity";
+import { Notification } from "../entities/notification.entity";
+import { User } from "../entities/user.entity";
 
+export enum NotificationType {
+    Message = "MESSAGE_NOTIFICATION",
+    AddToGroup = "ADD_TO_GROUP_NOTIFICATION",
+    Post = "POST_NOTIFICATION",
+
+}
 
 class NotificationSocketController {
     protected socket!: Socket;
@@ -30,7 +39,6 @@ class NotificationSocketController {
     }
 
     private async getAllNotifications() {
-
         try{
             // get notifications for user;
             const notifications = await this.notificationService.getNotificationsByUserId(this.userId);
@@ -78,9 +86,30 @@ class NotificationSocketController {
         }
     }
 
-    public async notify() {
+    
+    public async notify(object: Message, type: NotificationType ) {
+        
+        if (type == NotificationType.Message){
+            const message = object
+            // send notification for all members in the chatroom
+            const members = object.receiverRoom.members;
 
-    }
+            for (const member of members) {
+                const notification: Notification = new Notification()
+                notification.recipient = member
+                notification.mNotifications = [message]
+
+                await this.notificationService.createNotification(notification);
+                
+                // Emit 'new-notification' event for each user
+                this.socket.to(member.id).emit("new-message", {
+                    notification: notification,
+                });
+            }
+        }
+    }  
+
+
 
 }
 

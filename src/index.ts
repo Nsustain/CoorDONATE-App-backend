@@ -100,10 +100,8 @@ AppDataSource.initialize()
     // Socket Handling
     const socketController = new SocketController(io);
 
-
     // Notification socket handler
     const notificationSocketController = new NotificationSocketController(io);
-
 
     const port = parseInt(process.env.PORT || '4000', 10);
 

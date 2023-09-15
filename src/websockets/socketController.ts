@@ -8,6 +8,7 @@ import UserSerializer from "../serializers/userSerializer";
 import { ChatRoom } from "../entities/chat.entity";
 import AppDataSource from "../config/ormconfig";
 import { ChatSerializer } from "../serializers/chatSerializers";
+import NotificationSocketController, { NotificationType } from "./notificationSocketController";
 
 class SocketController {
   protected io: Server;
@@ -18,9 +19,13 @@ class SocketController {
   private chatSerialzier = new ChatSerializer();
   private chatRepository = AppDataSource.getRepository(ChatRoom);
   private userId!: string;
+  private notificationSocketController!: NotificationSocketController;
 
   constructor(io: Server) {
     this.io = io;
+    // Notification socket handler
+    this.notificationSocketController = new NotificationSocketController(io);
+
     io.on('connection', (socket) => {
   
       // Todo: join default room
@@ -56,6 +61,7 @@ class SocketController {
     allRooms.forEach(room => {
       this.socket.join(room.id.toString())
     });
+
   }
 
   private async createRoom(data: any){
@@ -159,6 +165,9 @@ class SocketController {
 
        await saveMessage(newMessage);
 
+       // send notification for message
+       this.notificationSocketController.notify(newMessage, NotificationType.Message);
+       
        // send message to other users in that room
        this.socket.to(roomId).emit('receive-message', {
        message: this.messageSerializer.serialize(newMessage)
