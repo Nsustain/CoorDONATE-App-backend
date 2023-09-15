@@ -19,6 +19,7 @@ import SocketMiddleware from './websockets/socketMiddleware';
 import multarError from './utils/multarError';
 import uploadRouter from './routes/upload.routes';
 import profileRouter from './routes/profile.routes';
+import NotificationSocketController from './websockets/notificationSocketController';
 
 require('dotenv').config();
 
@@ -98,6 +99,10 @@ AppDataSource.initialize()
 
     // Socket Handling
     const socketController = new SocketController(io);
+
+
+    // Notification socket handler
+    const notificationSocketController = new NotificationSocketController(io);
 
 
     const port = parseInt(process.env.PORT || '4000', 10);

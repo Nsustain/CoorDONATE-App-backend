@@ -17,6 +17,7 @@ class SocketController {
   private userSerializer = new UserSerializer();
   private chatSerialzier = new ChatSerializer();
   private chatRepository = AppDataSource.getRepository(ChatRoom);
+  private userId!: string;
 
   constructor(io: Server) {
     this.io = io;
@@ -40,7 +41,13 @@ class SocketController {
 
   private async initialize() {
 
-    const allRooms = await findChatByUserId(this.socket.data.user.id);
+    this.userId = this.socket.data.user.id;
+    await this.joinRooms()
+
+  }
+
+  private async joinRooms (){
+    const allRooms = await findChatByUserId(this.userId);
 
     if (!allRooms) {
       return;
@@ -49,13 +56,12 @@ class SocketController {
     allRooms.forEach(room => {
       this.socket.join(room.id.toString())
     });
-
   }
 
   private async createRoom(data: any){
 
       const chat = await this.chatSerialzier.deserializePromise(data);
-      const curr_user = await findUserById(this.socket.data.user.id);
+      const curr_user = await findUserById(this.userId);
       
       // add currUser to chat
       chat.members.push(curr_user!);
@@ -91,7 +97,6 @@ class SocketController {
   private async addMember(data: any) {
     try {
       const { roomId } = data;
-      const userId = this.socket.data.user.id;
 
       let chat = await findChatById(roomId);
 
@@ -99,15 +104,15 @@ class SocketController {
         return this.socket.emit('add-error', { message: "Room Not Found!", roomId: roomId });
       }
 
-      let user = await findUserById(userId);
+      let user = await findUserById(this.userId);
 
       if (!user) {
-        return this.socket.emit('add-error', { message: "User Not Found!", userId: userId });
+        return this.socket.emit('add-error', { message: "User Not Found!", userId: this.userId });
       }
 
       // Todo: authorize the user to add the chat room
 
-      const isMember = chat!.members.some(member => member.id === userId);
+      const isMember = chat!.members.some(member => member.id === this.userId);
       // add the user to that room if the user is not in
       if (!isMember) {
         await addMemberToChat(roomId, user!);
@@ -135,9 +140,8 @@ class SocketController {
 
     try{
       const { content, roomId} = data;
-      const userId = this.socket.data.user.id;
 
-       const result = await this.validations(roomId, userId)
+       const result = await this.validations(roomId, this.userId)
        
        if (!this.isValid){
         return this.socket.emit('send-error', result)
@@ -173,21 +177,20 @@ class SocketController {
 
     try {
         const {roomId} = data
-        const userId = this.socket.data.user.id;
 
-        const result = await this.validations(roomId, userId);
+        const result = await this.validations(roomId, this.userId);
 
         if(!this.isValid) {
             return this.socket.emit('leave-error', result)
         }
 
-        await removeMemberFromChat(roomId, userId);
+        await removeMemberFromChat(roomId, this.userId);
 
         this.socket.to(roomId).emit('left-room', {
-          userId: userId, roomId: roomId});
+          userId: this.userId, roomId: roomId});
 
         return this.socket.emit('leave-success', {
-          message: `${userId} has left the room.`
+          message: `${this.userId} has left the room.`
         })
 
     }catch(err) {
