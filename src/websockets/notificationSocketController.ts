@@ -6,6 +6,8 @@ import {
   Notification,
   NotificationType,
 } from '../entities/notification.entity';
+import { User } from '../entities/user.entity';
+import { ChatRoom } from '../entities/chat.entity';
 
 class NotificationSocketController {
   protected socket!: Socket;
@@ -86,27 +88,42 @@ class NotificationSocketController {
     }
   }
 
-  public async notify(object: Message, type: NotificationType) {
-    if (type == NotificationType.Message) {
-      const message = object;
-      // send notification for all members in the chatroom
-      const members = object.receiverRoom.members;
+  public async notify(
+    object: Message | User,
+    chatRoom: ChatRoom,
+    type: NotificationType
+  ) {
+    const members = chatRoom.members;
 
-      for (const member of members) {
-        const notification: Notification = new Notification();
+    // send notifications for all members in the chatroom based on type
+    for (const member of members) {
+      const notification: Notification = new Notification();
+
+      if (type === NotificationType.Message && object instanceof Message) {
+        const message = object;
         notification.recipient = member;
         notification.mNotification = message;
         notification.type = NotificationType.Message;
+        notification.displayText = message.content;
+      } else if (type === NotificationType.AddToGroup) {
+        notification.recipient = member;
+        notification.displayText = `${member.name} added to chat!`;
+        notification.type = NotificationType.AddToGroup;
+      } else if (type === NotificationType.LeaveRoom) {
+        notification.recipient = member;
+        notification.displayText = `${member.name} left the chat!`;
+        notification.type = NotificationType.LeaveRoom;
+      }
 
-        await this.notificationService.createNotification(notification);
+      // save to db
+      await this.notificationService.createNotification(notification);
 
-        // Emit 'new-notification' event for each user
-        const socketId = this.socketIdUserIdMap.get(member.id);
-        if (socketId !== undefined) {
-          this.socket.to(socketId).emit('new-message', {
-            notification: notification,
-          });
-        }
+      // Emit 'new-notification' event for each user
+      const socketId = this.socketIdUserIdMap.get(member.id);
+      if (socketId !== undefined) {
+        this.socket.to(socketId).emit('new-message', {
+          notification: notification,
+        });
       }
     }
   }

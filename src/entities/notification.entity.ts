@@ -14,6 +14,7 @@ export enum NotificationType {
   Message = 'MESSAGE_NOTIFICATION',
   AddToGroup = 'ADD_TO_GROUP_NOTIFICATION',
   Post = 'POST_NOTIFICATION',
+  LeaveRoom = 'LEFT-ROOM-NOTIFICATION',
 }
 
 @Entity()
@@ -40,4 +41,7 @@ export class Notification extends Model {
 
   @ManyToOne(() => Post, (post) => post.notifications, { nullable: true })
   pNotification!: Post;
+
+  @Column()
+  displayText!: string;
 }
