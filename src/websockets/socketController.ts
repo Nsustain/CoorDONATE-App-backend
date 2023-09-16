@@ -1,13 +1,24 @@
-import { Server, Socket } from "socket.io";
-import { addMemberToChat, createChat, findChatById, findChatByUserId, removeMemberFromChat } from "../services/chat.service";
-import { findUserById } from "../services/user.service";
-import { getMessagesByChatRoom, saveMessage } from "../services/message.service";
-import { MessageSerializer } from "../serializers/messageSerializers";
-import { Message } from "../entities/message.entity";
-import UserSerializer from "../serializers/userSerializer";
-import { ChatRoom } from "../entities/chat.entity";
-import AppDataSource from "../config/ormconfig";
-import { ChatSerializer } from "../serializers/chatSerializers";
+import { Server, Socket } from 'socket.io';
+import {
+  addMemberToChat,
+  createChat,
+  findChatById,
+  findChatByUserId,
+  getTotalRoomCount,
+  removeMemberFromChat,
+  updateLastMessage,
+} from '../services/chat.service';
+import { findUserById } from '../services/user.service';
+import {
+  getMessagesByChatRoom,
+  saveMessage,
+} from '../services/message.service';
+import { MessageSerializer } from '../serializers/messageSerializers';
+import { Message } from '../entities/message.entity';
+import UserSerializer from '../serializers/userSerializer';
+import { ChatRoom } from '../entities/chat.entity';
+import AppDataSource from '../config/ormconfig';
+import { ChatSerializer } from '../serializers/chatSerializers';
 
 class SocketController {
   protected io: Server;
@@ -21,7 +32,6 @@ class SocketController {
   constructor(io: Server) {
     this.io = io;
     io.on('connection', (socket) => {
-  
       // Todo: join default room
       this.socket = socket;
       this.socket.data.auth = false;
@@ -32,196 +42,225 @@ class SocketController {
   }
 
   private mapEvents() {
-    this.socket.on('create-room', this.createRoom.bind(this))
+    this.socket.on('create-room', this.createRoom.bind(this));
     this.socket.on('add-member', this.addMember.bind(this));
     this.socket.on('send-message', this.sendMessage.bind(this));
-    this.socket.on('leave-room', this.leaveRoom.bind(this))
+    this.socket.on('leave-room', this.leaveRoom.bind(this));
   }
 
   private async initialize() {
-
-    const allRooms = await findChatByUserId(this.socket.data.user.id);
+    const limit = await getTotalRoomCount(this.socket.data.user.id);
+    const page = 1;
+    const { chats: allRooms, totalCount } = await findChatByUserId(
+      this.socket.data.user.id,
+      page,
+      limit
+    );
 
     if (!allRooms) {
       return;
     }
 
-    allRooms.forEach(room => {
-      this.socket.join(room.id.toString())
+    allRooms.forEach((room) => {
+      this.socket.join(room.id.toString());
     });
-
   }
 
-  private async createRoom(data: any){
+  private async createRoom(data: any) {
+    const chat = await this.chatSerialzier.deserializePromise(data);
+    const curr_user = await findUserById(this.socket.data.user.id);
 
-      const chat = await this.chatSerialzier.deserializePromise(data);
-      const curr_user = await findUserById(this.socket.data.user.id);
-      
-      // add currUser to chat
-      chat.members.push(curr_user!);
+    // add currUser to chat
+    chat.members.push(curr_user!);
 
-      if(chat.members.length != 2 && !chat.isGroup){
-        return this.socket.emit('create-error', {
-          message: "Can't have move than 2 members in one to one chat!"
-        })
-      }
+    if (chat.members.length != 2 && !chat.isGroup) {
+      return this.socket.emit('create-error', {
+        message: "Can't have move than 2 members in one to one chat!",
+      });
+    }
 
-      // check if the chat already exists 
-      const existingChat = await this.chatRepository.createQueryBuilder('chat')
+    // check if the chat already exists
+    const existingChat = await this.chatRepository
+      .createQueryBuilder('chat')
       .leftJoinAndSelect('chat.members', 'member')
-      .where('member.id IN (:...memberIds)', { memberIds: chat.members.map(member => member.id) })
+      .where('member.id IN (:...memberIds)', {
+        memberIds: chat.members.map((member) => member.id),
+      })
       .andWhere('chat.isGroup = :isGroup', { isGroup: chat.isGroup })
       .getOne();
 
-      if (existingChat){
-        return this.socket.emit('create-success', {
-          chat: this.chatSerialzier.serialize(existingChat)
-        })
-      }
-
-      let chatDb = await createChat(chat);
-
-      this.socket.emit('create-success', {
-        chat: this.chatSerialzier.serialize(chatDb)
+    if (existingChat) {
+      return this.socket.emit('create-success', {
+        chat: this.chatSerialzier.serialize(existingChat),
       });
+    }
 
+    let chatDb = await createChat(chat);
+
+    this.socket.emit('create-success', {
+      chat: this.chatSerialzier.serialize(chatDb),
+    });
   }
 
-// user trying to join a chat room
+  // user trying to join a chat room
   private async addMember(data: any) {
     try {
       const { roomId } = data;
+      const page = parseInt(data.page as string) || 1; // Current page number, default to 1
+      const limit = parseInt(data.limit as string) || 10; // Number of results per page, default to 10
       const userId = this.socket.data.user.id;
 
       let chat = await findChatById(roomId);
 
       if (!chat) {
-        return this.socket.emit('add-error', { message: "Room Not Found!", roomId: roomId });
+        return this.socket.emit('add-error', {
+          message: 'Room Not Found!',
+          roomId: roomId,
+        });
       }
 
       let user = await findUserById(userId);
 
       if (!user) {
-        return this.socket.emit('add-error', { message: "User Not Found!", userId: userId });
+        return this.socket.emit('add-error', {
+          message: 'User Not Found!',
+          userId: userId,
+        });
       }
 
       // Todo: authorize the user to add the chat room
 
-      const isMember = chat!.members.some(member => member.id === userId);
+      const isMember = chat!.members.some((member) => member.id === userId);
       // add the user to that room if the user is not in
       if (!isMember) {
         await addMemberToChat(roomId, user!);
       }
 
       // send back the chat history
-      const chatHistory = await getMessagesByChatRoom(chat!);
+      const { messages: chatHistory, totalCount } = await getMessagesByChatRoom(
+        chat!,
+        page,
+        limit
+      );
 
-      this.socket.emit('add-success', this.messageSerializer.serializeMany(chatHistory));
+      const totalPages = Math.ceil(totalCount / limit);
+
+      this.socket.emit('add-success', {
+        chatRoomId: roomId,
+        pagination: {
+          page: page,
+          limit: limit,
+          totalCount: totalCount,
+          totalPages: totalPages,
+        },
+        messages: this.messageSerializer.serializeMany(chatHistory),
+      });
 
       const userSerialized = this.userSerializer.serialize(user);
       return this.io.to(roomId).emit('user-joined', {
-        message: {user: userSerialized, message: `${user.username} has joined the chatRoom`}
-      })
-
+        message: {
+          user: userSerialized,
+          message: `${user.username} has joined the chatRoom`,
+        },
+      });
     } catch (err) {
       this.socket.emit('add-error', { message: err });
     }
   }
 
-  private async sendMessage(data: any){
-
-    try{
-      const { content, roomId} = data;
+  private async sendMessage(data: any) {
+    try {
+      const { content, roomId } = data;
       const userId = this.socket.data.user.id;
 
-       const result = await this.validations(roomId, userId)
-       
-       if (!this.isValid){
-        return this.socket.emit('send-error', result)
-       }
+      const result = await this.validations(roomId, userId);
 
-      // Todo: create the chatroom if the two users haven't talked yet  
+      if (!this.isValid) {
+        return this.socket.emit('send-error', result);
+      }
 
-       const {chat, user} = result
+      // Todo: create the chatroom if the two users haven't talked yet
 
-       // store message to db
-       const newMessage = new Message();
-       newMessage.content = content;
-       newMessage.receiverRoom = chat!;
-       newMessage.sender = user!;
+      const { chat, user } = result;
 
-       await saveMessage(newMessage);
+      // store message to db
+      const newMessage = new Message();
+      newMessage.content = content;
+      newMessage.receiverRoom = chat!;
+      newMessage.sender = user!;
 
-       // send message to other users in that room
-       this.socket.to(roomId).emit('receive-message', this.messageSerializer.serialize(newMessage));
+      const savedMessage = await saveMessage(newMessage);
 
-       return this.socket.emit('send-success')
+      // update last message in room;
+      await updateLastMessage(roomId, savedMessage);
 
-    }catch(err){
-        this.socket.emit('send-error', {
-            message: err
-        })
+      // send message to other users in that room
+      this.socket
+        .to(roomId)
+        .emit('receive-message', this.messageSerializer.serialize(newMessage));
+
+      return this.socket.emit('send-success');
+    } catch (err) {
+      this.socket.emit('send-error', {
+        message: err,
+      });
     }
   }
 
-  private async leaveRoom (data: any) {
-
+  private async leaveRoom(data: any) {
     try {
-        const {roomId} = data
-        const userId = this.socket.data.user.id;
+      const { roomId } = data;
+      const userId = this.socket.data.user.id;
 
-        const result = await this.validations(roomId, userId);
+      const result = await this.validations(roomId, userId);
 
-        if(!this.isValid) {
-            return this.socket.emit('leave-error', result)
-        }
+      if (!this.isValid) {
+        return this.socket.emit('leave-error', result);
+      }
 
-        await removeMemberFromChat(roomId, userId);
+      await removeMemberFromChat(roomId, userId);
 
-        this.socket.to(roomId).emit('left-room', {userId, roomId});
-        return this.socket.emit('leave-success', {
-          message: `${userId} has left the room.`
-        })
-
-    }catch(err) {
+      this.socket.to(roomId).emit('left-room', { userId, roomId });
+      return this.socket.emit('leave-success', {
+        message: `${userId} has left the room.`,
+      });
+    } catch (err) {
       this.socket.emit('leave-error', {
-        message: err
-    })
+        message: err,
+      });
     }
   }
 
-  private disconnect () {
-
+  private disconnect() {
     this.socket.emit('disconnect');
     this.socket.disconnect();
   }
 
-
-private async validations(roomId: string, userId: string) {
+  private async validations(roomId: string, userId: string) {
     let chat = await findChatById(roomId);
-  
+
     if (!chat) {
-      return { error: { message: "Room Not Found!", roomId: roomId } };
+      return { error: { message: 'Room Not Found!', roomId: roomId } };
     }
-  
+
     let user = await findUserById(userId);
-  
+
     if (!user) {
-      return { error: { message: "User Not Found!", userId: userId } };
+      return { error: { message: 'User Not Found!', userId: userId } };
     }
-  
-    const isMember = chat.members.some(member => member.id === user!.id);
-  
+
+    const isMember = chat.members.some((member) => member.id === user!.id);
+
     if (!isMember) {
-      return { error: { message: "User is not a member of this room", userId: userId } };
+      return {
+        error: { message: 'User is not a member of this room', userId: userId },
+      };
     }
-  
+
     this.isValid = true;
 
     return { chat, user };
   }
-
 }
 
 export default SocketController;
-

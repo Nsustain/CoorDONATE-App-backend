@@ -1,4 +1,12 @@
-import { Entity, PrimaryGeneratedColumn, OneToMany, ManyToMany, JoinTable, Column, ManyToOne } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  OneToMany,
+  ManyToMany,
+  JoinTable,
+  Column,
+  ManyToOne,
+} from 'typeorm';
 import Model from './model.entity';
 import { User } from './user.entity';
 import { Message } from './message.entity';
@@ -9,15 +17,15 @@ export class ChatRoom extends Model {
   id!: string;
 
   @Column({ nullable: true })
-  groupName?: string; 
+  groupName?: string;
 
   @Column({ nullable: true })
   description?: string;
 
-  @Column('bool', {default: false})
+  @Column('bool', { default: false })
   isGroup!: boolean;
 
-  @Column({default: '', nullable: true })
+  @Column({ default: '', nullable: true })
   groupProfile?: string;
 
   @ManyToOne(() => User, (user) => user.username, { nullable: true })
@@ -27,7 +35,10 @@ export class ChatRoom extends Model {
   @ManyToMany(() => User, (user) => user.chats)
   @JoinTable()
   members!: User[];
-  
+
   @OneToMany(() => Message, (message) => message.receiverRoom)
   messages!: Message[];
+
+  @ManyToOne(() => Message, { nullable: true })
+  lastMessage!: Message;
 }
