@@ -105,11 +105,19 @@ class NotificationSocketController {
         notification.mNotification = message;
         notification.type = NotificationType.Message;
         notification.displayText = message.content;
-      } else if (type === NotificationType.AddToGroup) {
-        notification.displayText = `${member.name} added to chat!`;
+      } else if (
+        type === NotificationType.AddToGroup &&
+        object instanceof User
+      ) {
+        const user = object;
+        notification.displayText = `${user.name} added to chat!`;
         notification.type = NotificationType.AddToGroup;
-      } else if (type === NotificationType.LeaveRoom) {
-        notification.displayText = `${member.name} left the chat!`;
+      } else if (
+        type === NotificationType.LeaveRoom &&
+        object instanceof User
+      ) {
+        const user = object;
+        notification.displayText = `${user.name} left the chat!`;
         notification.type = NotificationType.LeaveRoom;
       }
 
