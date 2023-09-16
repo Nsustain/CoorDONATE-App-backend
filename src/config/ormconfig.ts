@@ -1,20 +1,19 @@
 import 'reflect-metadata';
 import { DataSource } from 'typeorm';
-import UserSession from '../entities/user.session';
-import { User } from '../entities/user.entity';
-import { Post, PostImage, Comment, Like } from '../entities/post.entity';
-import { ChatRoom } from '../entities/chat.entity';
-import { Message } from '../entities/message.entity';
-import { Notification } from '../entities/notification.entity';
-import { Profile } from '../entities/profile.entity';
+import UserSession from '../entities/user.session.ts';
+import { User } from '../entities/user.entity.ts';
+import { Post, PostImage, Comment, Like } from '../entities/post.entity.ts';
+import { ChatRoom } from '../entities/chat.entity.ts';
+import { Message } from '../entities/message.entity.ts';
+import { Profile } from '../entities/profile.entity.ts';
 
 const AppDataSource = new DataSource({
   type: 'postgres',
-  host: 'surus.db.elephantsql.com',
+  host: 'localhost',
   port: 5432,
-  username: 'abkqqias',
-  password: 'MjV1ZlWGtTPEV2lhFJL7me0cVPvz5YCG',
-  database: 'abkqqias',
+  username: 'coordev',
+  password: '12345678',
+  database: 'coordonate',
   synchronize: true,
   logging: true,
   entities: [
