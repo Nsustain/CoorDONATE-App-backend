@@ -40,8 +40,16 @@ class NotificationSocketController {
   private async getAllNotifications() {
     try {
       // get notifications for user;
+      const page = 1;
+      const limit = await this.notificationService.countAllNotifications(
+        this.userId
+      );
       const notifications =
-        await this.notificationService.getNotificationsByUserId(this.userId);
+        await this.notificationService.getNotificationsByUserId(
+          this.userId,
+          page,
+          limit
+        );
       const serializedNotifications =
         this.notificationSerializer.serializeMany(notifications);
 

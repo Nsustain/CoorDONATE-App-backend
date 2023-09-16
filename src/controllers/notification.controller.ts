@@ -16,11 +16,15 @@ class NotificationController {
     next: NextFunction
   ) {
     const userId = res.locals.user.id;
+    const page = parseInt(req.query.page as string) || 1; // Current page number, default to 1
+    const limit = parseInt(req.query.limit as string) || 10; // Number of results per page, default to 10
 
     try {
       // get notifications for user;
       const notifications = await notificationService.getNotificationsByUserId(
-        userId
+        userId,
+        page,
+        limit
       );
 
       const serializedNotifications =

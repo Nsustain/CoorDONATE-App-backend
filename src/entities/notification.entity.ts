@@ -44,4 +44,7 @@ export class Notification extends Model {
 
   @Column()
   displayText!: string;
+
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  timeStamp!: Date;
 }

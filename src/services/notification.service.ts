@@ -15,7 +15,12 @@ class NotificationService {
     )) as Notification;
   };
 
-  public getNotificationsByUserId = async (userId: string) => {
+  public getNotificationsByUserId = async (
+    userId: string,
+    page: number,
+    limit: number
+  ) => {
+    const skip = (page - 1) * limit;
     return await this.notificationRepository.find({
       where: {
         recipient: {
@@ -29,6 +34,11 @@ class NotificationService {
         'mNotification.receiverRoom',
         'pNotification',
       ],
+      order: {
+        timeStamp: 'ASC',
+      },
+      take: limit,
+      skip: skip,
     });
   };
 
@@ -93,6 +103,16 @@ class NotificationService {
     } catch (err) {
       throw new Error('Error marking all notifications as read: ' + err);
     }
+  };
+
+  public countAllNotifications = async (userId: string) => {
+    return await this.notificationRepository.count({
+      where: {
+        recipient: {
+          id: userId,
+        },
+      },
+    });
   };
 }
 
