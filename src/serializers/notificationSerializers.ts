@@ -10,7 +10,6 @@ const messageSerializer = new MessageSerializer();
 const userSerializer = new UserSerializer();
 export class NotificationSerializer extends Serializer<Notification, any> {
   serialize(instance: Notification) {
-    console.log(instance);
     const serializedNotification: any = {
       id: instance.id,
       recipient: instance.recipient

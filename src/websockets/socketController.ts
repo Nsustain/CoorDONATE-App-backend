@@ -136,6 +136,13 @@ class SocketController {
         });
       }
 
+      if (!chat.isGroup) {
+        return this.socket.emit('add-error', {
+          message: "You can't join non-group room!",
+          roomId: roomId,
+        });
+      }
+
       let user = await findUserById(this.userId);
 
       if (!user) {
@@ -229,21 +236,25 @@ class SocketController {
       const result = await this.validations(roomId, this.userId);
 
       if (!this.isValid) {
-        return this.socket.emit('leave-error', result);
+        return this.socket.emit('leave-error', {
+          message: 'Room not found or user not a member',
+        });
       }
 
       await removeMemberFromChat(roomId, this.userId);
 
-      this.socket.to(roomId).emit('left-room', {
-        userId: this.userId,
-        roomId: roomId,
-      });
       // send notifications
       this.notificationSocketController.notify(
         result.user!,
         result.chat!,
         NotificationType.LeaveRoom
       );
+
+      this.socket.to(roomId).emit('left-room', {
+        userId: this.userId,
+        roomId: roomId,
+      });
+
       return this.socket.emit('leave-success', {
         message: `${this.userId} has left the room.`,
       });

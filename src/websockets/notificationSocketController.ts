@@ -98,19 +98,17 @@ class NotificationSocketController {
     // send notifications for all members in the chatroom based on type
     for (const member of members) {
       const notification: Notification = new Notification();
+      notification.recipient = member;
 
       if (type === NotificationType.Message && object instanceof Message) {
         const message = object;
-        notification.recipient = member;
         notification.mNotification = message;
         notification.type = NotificationType.Message;
         notification.displayText = message.content;
       } else if (type === NotificationType.AddToGroup) {
-        notification.recipient = member;
         notification.displayText = `${member.name} added to chat!`;
         notification.type = NotificationType.AddToGroup;
       } else if (type === NotificationType.LeaveRoom) {
-        notification.recipient = member;
         notification.displayText = `${member.name} left the chat!`;
         notification.type = NotificationType.LeaveRoom;
       }
@@ -122,7 +120,7 @@ class NotificationSocketController {
       // Emit 'new-notification' event for each user
       const socketId = this.socketIdUserIdMap.get(member.id);
       if (socketId !== undefined) {
-        this.socket.to(socketId).emit('new-message', {
+        this.socket.to(socketId).emit('new-notification', {
           notification:
             this.notificationSerializer.serialize(savedNotification),
         });
