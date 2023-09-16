@@ -1,7 +1,7 @@
 import express, { Request, Response, NextFunction } from 'express';
 import config from 'config';
 import cors from 'cors';
-import http from 'http'
+import http from 'http';
 import cookieParser from 'cookie-parser';
 // eslint-disable-next-line import/extensions, node/no-missing-import
 import AppDataSource from './config/ormconfig';
@@ -20,6 +20,7 @@ import multarError from './utils/multarError';
 import uploadRouter from './routes/upload.routes';
 import profileRouter from './routes/profile.routes';
 import NotificationSocketController from './websockets/notificationSocketController';
+import notificationRouter from './routes/notification.routes';
 
 require('dotenv').config();
 
@@ -27,8 +28,6 @@ AppDataSource.initialize()
   .then(async () => {
     console.log('database connected');
 
-
-    
     const app = express();
     // eslint-disable-next-line global-require
     // eslint-disable-next-line global-require
@@ -53,11 +52,12 @@ AppDataSource.initialize()
     // ROUTES
     app.use('/api/auth', authRouter);
     app.use('/api/users', userRouter);
-	  app.use("/api/post", postRouter);
-    app.use("/api/chat", chatRouter);
+    app.use('/api/post', postRouter);
+    app.use('/api/chat', chatRouter);
     app.use('/api/message', messageRouter);
     app.use('/api/upload', uploadRouter);
     app.use('/api/profiles', profileRouter);
+    app.use('/api/notifications', notificationRouter);
 
     // UNHANDLED ROUTE
     app.all('*', handle404);
@@ -79,19 +79,18 @@ AppDataSource.initialize()
       }
     );
 
-
     // create http server
     const ioServer = http.createServer(app);
     // create socket.io server
     const io = new Server(ioServer, {
       cors: {
-        origin: AuthConfig.ORIGIN, 
+        origin: AuthConfig.ORIGIN,
         methods: ['GET', 'POST'],
         allowedHeaders: ['Content-Type', 'Authorization'],
         credentials: true,
       },
     });
-    
+
     // Attach the middleware to the Socket.IO server
     io.use((socket, next) => {
       new SocketMiddleware(socket, next);
@@ -108,8 +107,7 @@ AppDataSource.initialize()
     ioServer.listen(port, () => {
       console.log(`Server Running at port ${port}`);
     });
-
   })
   .catch((error) => {
     console.log(error);
-  }); 
+  });

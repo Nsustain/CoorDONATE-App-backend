@@ -116,13 +116,15 @@ class NotificationSocketController {
       }
 
       // save to db
-      await this.notificationService.createNotification(notification);
+      const savedNotification =
+        await this.notificationService.createNotification(notification);
 
       // Emit 'new-notification' event for each user
       const socketId = this.socketIdUserIdMap.get(member.id);
       if (socketId !== undefined) {
         this.socket.to(socketId).emit('new-message', {
-          notification: notification,
+          notification:
+            this.notificationSerializer.serialize(savedNotification),
         });
       }
     }

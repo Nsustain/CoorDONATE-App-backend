@@ -22,6 +22,13 @@ class NotificationService {
           id: userId,
         },
       },
+      relations: [
+        'recipient',
+        'mNotification',
+        'mNotification.sender',
+        'mNotification.receiverRoom',
+        'pNotification',
+      ],
     });
   };
 
@@ -35,8 +42,14 @@ class NotificationService {
         where: {
           id: notificationId,
         },
+        relations: [
+          'recipient',
+          'mNotification',
+          'mNotification.sender',
+          'mNotification.receiverRoom',
+          'pNotification',
+        ],
       });
-
       if (!notification) {
         throw new Error('Notification not found');
       }

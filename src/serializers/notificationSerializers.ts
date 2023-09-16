@@ -1,28 +1,42 @@
-import { Notification } from "../entities/notification.entity";
-import Serializer from "./serializer";
+import {
+  Notification,
+  NotificationType,
+} from '../entities/notification.entity';
+import { MessageSerializer } from './messageSerializers';
+import Serializer from './serializer';
+import UserSerializer from './userSerializer';
 
-
-
+const messageSerializer = new MessageSerializer();
+const userSerializer = new UserSerializer();
 export class NotificationSerializer extends Serializer<Notification, any> {
+  serialize(instance: Notification) {
+    console.log(instance);
+    const serializedNotification: any = {
+      id: instance.id,
+      recipient: instance.recipient
+        ? userSerializer.serialize(instance.recipient)
+        : {},
+      isRead: instance.isRead,
+      type: instance.type,
+      displayText: instance.displayText,
+    };
 
-    serialize(instance: Notification) {
-        return {
-            "id": instance.id,
-            "recipient": instance.recipient,
-            "isRead": instance.isRead,
-            "mNotifications": instance.mNotifications,
-            "pNotifications": instance.pNotifications
-        }
+    if (instance.type === NotificationType.Message) {
+      serializedNotification.mNotification = instance.mNotification
+        ? messageSerializer.serialize(instance.mNotification)
+        : {};
     }
 
-    deserialize(data: any): Notification {
-        throw new Error("Method not implemented.");
-    }
+    return serializedNotification;
+  }
 
-    async deserializePromise(data: any): Promise<Notification> {
-        throw new Error("Method not implemented.");
-    }
+  deserialize(data: any): Notification {
+    throw new Error('Method not implemented.');
+  }
+
+  async deserializePromise(data: any): Promise<Notification> {
+    throw new Error('Method not implemented.');
+  }
 }
-
 
 export default NotificationSerializer;

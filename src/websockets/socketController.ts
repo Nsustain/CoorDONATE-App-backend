@@ -39,6 +39,7 @@ class SocketController {
 
     io.on('connection', (socket) => {
       // Todo: join default room
+      console.log('user', socket.id);
       this.socket = socket;
       this.socket.data.auth = false;
       // initialze all rooms for a user
@@ -52,6 +53,7 @@ class SocketController {
     this.socket.on('add-member', this.addMember.bind(this));
     this.socket.on('send-message', this.sendMessage.bind(this));
     this.socket.on('leave-room', this.leaveRoom.bind(this));
+    this.socket.on('get-rooms', this.getRooms.bind(this));
   }
 
   private async initialize() {
@@ -71,40 +73,53 @@ class SocketController {
     });
   }
 
-  private async createRoom(data: any) {
-    const chat = await this.chatSerialzier.deserializePromise(data);
-    const curr_user = await findUserById(this.userId);
-
-    // add currUser to chat
-    chat.members.push(curr_user!);
-
-    if (chat.members.length != 2 && !chat.isGroup) {
-      return this.socket.emit('create-error', {
-        message: "Can't have move than 2 members in one to one chat!",
-      });
-    }
-
-    // check if the chat already exists
-    const existingChat = await this.chatRepository
-      .createQueryBuilder('chat')
-      .leftJoinAndSelect('chat.members', 'member')
-      .where('member.id IN (:...memberIds)', {
-        memberIds: chat.members.map((member) => member.id),
-      })
-      .andWhere('chat.isGroup = :isGroup', { isGroup: chat.isGroup })
-      .getOne();
-
-    if (existingChat) {
-      return this.socket.emit('create-success', {
-        chat: this.chatSerialzier.serialize(existingChat),
-      });
-    }
-
-    let chatDb = await createChat(chat);
-
-    this.socket.emit('create-success', {
-      chat: this.chatSerialzier.serialize(chatDb),
+  // gets all rooms on the socket.io object
+  private async getRooms() {
+    const rooms = this.io.sockets.adapter.rooms;
+    const roomNames = Object.keys(rooms);
+    this.socket.emit('receive-rooms', {
+      roomNames: roomNames,
     });
+  }
+
+  private async createRoom(data: any) {
+    try {
+      const chat = await this.chatSerialzier.deserializePromise(data);
+      const curr_user = await findUserById(this.userId);
+
+      // add currUser to chat
+      chat.members.push(curr_user!);
+
+      if (chat.members.length != 2 && !chat.isGroup) {
+        return this.socket.emit('create-error', {
+          message: "Can't have move than 2 members in one to one chat!",
+        });
+      }
+
+      // check if the chat already exists
+      const existingChat = await this.chatRepository
+        .createQueryBuilder('chat')
+        .leftJoinAndSelect('chat.members', 'member')
+        .where('member.id IN (:...memberIds)', {
+          memberIds: chat.members.map((member) => member.id),
+        })
+        .andWhere('chat.isGroup = :isGroup', { isGroup: chat.isGroup })
+        .getOne();
+
+      if (existingChat) {
+        return this.socket.emit('create-success', {
+          chat: this.chatSerialzier.serialize(existingChat),
+        });
+      }
+
+      let chatDb = await createChat(chat);
+
+      this.socket.emit('create-success', {
+        chat: this.chatSerialzier.serialize(chatDb),
+      });
+    } catch (err) {
+      this.socket.emit('create-error', err);
+    }
   }
 
   // user trying to join a chat room
@@ -185,12 +200,12 @@ class SocketController {
       newMessage.receiverRoom = chat!;
       newMessage.sender = user!;
 
-      await saveMessage(newMessage);
+      const savedMessage = await saveMessage(newMessage);
 
       // send notification for message
       this.notificationSocketController.notify(
-        newMessage,
-        newMessage.receiverRoom,
+        savedMessage,
+        savedMessage.receiverRoom,
         NotificationType.Message
       );
 
