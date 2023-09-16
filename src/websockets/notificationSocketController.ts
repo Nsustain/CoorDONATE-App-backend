@@ -26,11 +26,6 @@ class NotificationSocketController {
 
   private mapEvents() {
     this.socket.on('get-notifications', this.getAllNotifications.bind(this));
-    this.socket.on('read-notification', this.readNotification.bind(this));
-    this.socket.on(
-      'read-all-notiifcations',
-      this.readAllNotifications.bind(this)
-    );
   }
 
   // Send all notifications
@@ -55,36 +50,6 @@ class NotificationSocketController {
       });
     } catch (err) {
       this.socket.emit('notification-error', err);
-    }
-  }
-
-  private async readNotification(data: any) {
-    try {
-      const { id: notificationId } = data;
-
-      await this.notificationService.markNotificationAsRead(
-        this.userId,
-        notificationId
-      );
-
-      this.socket.emit('notification-read', {
-        notificationId,
-      });
-    } catch (err) {
-      this.socket.emit('notification-error', {
-        message: `Error marking notification as read ${err}`,
-      });
-    }
-  }
-
-  private async readAllNotifications() {
-    try {
-      await this.notificationService.markAllNotificationsAsRead(this.userId);
-      this.socket.emit('all-notifications-read');
-    } catch (err) {
-      this.socket.emit('notification-error', {
-        message: `Error marking all notifications as read, ${err}`,
-      });
     }
   }
 
