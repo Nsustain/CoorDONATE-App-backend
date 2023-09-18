@@ -19,6 +19,7 @@ import SocketMiddleware from './websockets/socketMiddleware';
 import multarError from './utils/multarError';
 import uploadRouter from './routes/upload.routes';
 import profileRouter from './routes/profile.routes';
+import searchRouter from './routes/search.routes';
 import NotificationSocketController from './websockets/notificationSocketController';
 import notificationRouter from './routes/notification.routes';
 
@@ -57,6 +58,7 @@ AppDataSource.initialize()
     app.use('/api/message', messageRouter);
     app.use('/api/upload', uploadRouter);
     app.use('/api/profiles', profileRouter);
+    app.use('/api/search', searchRouter);
     app.use('/api/notifications', notificationRouter);
 
     // UNHANDLED ROUTE

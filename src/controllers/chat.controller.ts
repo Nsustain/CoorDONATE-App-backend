@@ -23,9 +23,10 @@ class ChatController {
     res: Response,
     next: NextFunction
   ) => {
-
     try {
       const { userId } = req.params;
+      const page = parseInt(req.query.page as string) || 1; // Current page number, default to 1
+      const limit = parseInt(req.query.limit as string) || 10; // Number of results per page, default to 10
 
       // check authority
       if (userId !== res.locals.user.id.toString()) {
@@ -40,9 +41,24 @@ class ChatController {
       }
 
       // Fetch chats where the user is a member
-      const chats = await findChatByUserId(user.id);
+      const { chats, totalCount } = await findChatByUserId(
+        user.id,
+        page,
+        limit
+      );
 
-      res.status(200).json(await this.serializer.serializeMany(chats));
+      const totalPages = Math.ceil(totalCount / limit);
+
+      res.status(200).json({
+        userId: userId,
+        pagination: {
+          page: page,
+          limit: limit,
+          totalCount: totalCount,
+          totalPages: totalPages,
+        },
+        chats: this.serializer.serializeMany(chats),
+      });
     } catch (error) {
       next(error);
     }

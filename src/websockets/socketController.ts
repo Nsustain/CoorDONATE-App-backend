@@ -4,7 +4,9 @@ import {
   createChat,
   findChatById,
   findChatByUserId,
+  getTotalRoomCount,
   removeMemberFromChat,
+  updateLastMessage,
 } from '../services/chat.service';
 import { findUserById } from '../services/user.service';
 import {
@@ -19,7 +21,6 @@ import AppDataSource from '../config/ormconfig';
 import { ChatSerializer } from '../serializers/chatSerializers';
 import NotificationSocketController from './notificationSocketController';
 import { NotificationType } from '../entities/notification.entity';
-import { User } from '../entities/user.entity';
 
 class SocketController {
   protected io: Server;
@@ -53,7 +54,7 @@ class SocketController {
     this.socket.on('add-member', this.addMember.bind(this));
     this.socket.on('send-message', this.sendMessage.bind(this));
     this.socket.on('leave-room', this.leaveRoom.bind(this));
-    this.socket.on('get-rooms', this.getRooms.bind(this));
+    this.socket.on('get-rooms', this.getRooms.bind(this));;
   }
 
   private async initialize() {
@@ -62,7 +63,13 @@ class SocketController {
   }
 
   private async joinRooms() {
-    const allRooms = await findChatByUserId(this.userId);
+    const limit = await getTotalRoomCount(this.socket.data.user.id);
+    const page = 1;    
+    const { chats: allRooms, totalCount } = await findChatByUserId(
+      this.userId,
+      page,
+      limit
+    );
 
     if (!allRooms) {
       return;
@@ -111,7 +118,7 @@ class SocketController {
         });
       }
 
-      let chatDb = await createChat(chat);
+    let chatDb = await createChat(chat);
 
       this.socket.emit('create-success', {
         chat: this.chatSerialzier.serialize(chatDb),
@@ -125,6 +132,8 @@ class SocketController {
   private async addMember(data: any) {
     try {
       const { roomId } = data;
+      const page = parseInt(data.page as string) || 1; // Current page number, default to 1
+      const limit = parseInt(data.limit as string) || 20; // Number of results per page, default to 10
 
       let chat = await findChatById(roomId);
 
@@ -162,10 +171,17 @@ class SocketController {
       }
 
       // send back the chat history
-      const chatHistory = await getMessagesByChatRoom(chat!);
+      const {messages: chatHistory, totalCount} = await getMessagesByChatRoom(chat!, page, limit);
+      const totalPages = Math.ceil(totalCount / limit);
 
       this.socket.emit('add-success', {
         chatHistory: this.messageSerializer.serializeMany(chatHistory),
+        pagination: {
+          page: page,
+          limit: limit,
+          totalCount: totalCount,
+          totalPages: totalPages,
+        },
       });
 
       // send notification
@@ -208,6 +224,9 @@ class SocketController {
 
       const savedMessage = await saveMessage(newMessage);
 
+      // update last message in room;
+      await updateLastMessage(roomId, savedMessage);
+
       // send notification for message
       this.notificationSocketController.notify(
         savedMessage,
@@ -230,7 +249,8 @@ class SocketController {
 
   private async leaveRoom(data: any) {
     try {
-      const { roomId } = data;
+        const {roomId} = data
+        const userId = this.socket.data.user.id;
 
       const result = await this.validations(roomId, this.userId);
 
@@ -253,9 +273,8 @@ class SocketController {
         userId: this.userId,
         roomId: roomId,
       });
-
       return this.socket.emit('leave-success', {
-        message: `${this.userId} has left the room.`,
+        message: `${userId} has left the room.`,
       });
     } catch (err) {
       this.socket.emit('leave-error', {
