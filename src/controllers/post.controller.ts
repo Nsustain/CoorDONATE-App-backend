@@ -7,6 +7,7 @@ import {
   deletePost,
   getPostById,
   getPostsByUser,
+  searchPostByTag,
 } from '../services/post.service';
 import AppError from '../utils/appError';
 class PostController {
@@ -76,6 +77,24 @@ class PostController {
       const { postId } = req.params;
       await deletePost(postId);
       return res.status(200).json('Post Deleted');
+    } catch (err) {
+      next(err);
+    }
+  };
+
+  public getPostsByTag = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const { tag } = req.query;
+      if (typeof tag !== 'string') {
+        return [];
+      }
+
+      const posts = await searchPostByTag(tag);
+      return res.status(200).json(posts);
     } catch (err) {
       next(err);
     }

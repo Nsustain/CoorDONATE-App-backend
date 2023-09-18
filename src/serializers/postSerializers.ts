@@ -6,23 +6,20 @@ import { findUserById } from '../services/user.service';
 import UserSerializer from './userSerializer';
 import AppError from '../utils/appError';
 
-export class PostImageSerializer extends Serializer<PostImage, any>{
-	
-	serialize(instance: PostImage): string {
-		return instance.url;
-	}
-	
-	deserialize(data: string): PostImage {
-		let image = new PostImage();
-		image.url = data;
-		return image;
-	}
+export class PostImageSerializer extends Serializer<PostImage, any> {
+  serialize(instance: PostImage): string {
+    return instance.url;
+  }
 
-	deserializePromise(data: any): Promise<PostImage> {
-		throw new Error("Method not implemented.");
-	}
+  deserialize(data: string): PostImage {
+    let image = new PostImage();
+    image.url = data;
+    return image;
+  }
 
-
+  deserializePromise(data: any): Promise<PostImage> {
+    throw new Error('Method not implemented.');
+  }
 }
 
 export class PostSerializer extends Serializer<Post, any> {
@@ -37,6 +34,7 @@ export class PostSerializer extends Serializer<Post, any> {
       likes: instance.likes,
       comments: instance.comments,
       postedBy: this.userSerializer.serialize(instance.postedBy),
+      tags: instance.tags,
     };
   }
 
@@ -46,6 +44,7 @@ export class PostSerializer extends Serializer<Post, any> {
     post.contentImages = this.imageSerializer.deserializeMany(
       data.content_images
     );
+    post.tags = data['tags'].length > 0 ? data['tags'] : [];
     return post;
   }
 
@@ -60,15 +59,12 @@ export class PostSerializer extends Serializer<Post, any> {
       (post.contentText = data.contentText),
       (post.comments = data.comments),
       (post.likes = data.likes);
-      post.id = data.id;
+    post.id = data.id;
+    post.tags = data['tags'].length > 0 ? data['tags'] : ["All"];
     return post;
   }
 
   protected getValidations(): ValidationChain[] {
-    return [
-      body('tags').notEmpty(),
-      body('content_text').notEmpty(),
-      body('content_images').notEmpty(),
-    ];
+    return [body('content_text').notEmpty(), body('content_images').notEmpty()];
   }
 }

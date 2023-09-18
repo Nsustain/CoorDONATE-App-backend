@@ -14,6 +14,7 @@ postRouter.get('/feed', postController.getFeed);
 postRouter.post('/new', postController.create);
 postRouter.get('/posts', postController.getPostsByUser);
 postRouter.delete('/:postId', postController.deletePost);
+postRouter.get('/posts/tag', postController.getPostsByTag);
 
 // Comment
 postRouter.post('/:postId/comment', commentController.commentOnPost);

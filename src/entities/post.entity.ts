@@ -1,83 +1,80 @@
-import { Column, Entity, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
-import Model from "./model.entity";
-import { User } from "./user.entity";
-
-
+import {
+  Column,
+  Entity,
+  ManyToMany,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
+import Model from './model.entity';
+import { User } from './user.entity';
 
 @Entity()
-export class Post extends Model{
+export class Post extends Model {
+  @PrimaryGeneratedColumn('uuid')
+  id!: string;
 
-	@PrimaryGeneratedColumn("uuid")
-	id!: string;
+  @Column('text')
+  contentText!: string;
 
-	@Column("text")
-	contentText!: string;
+  @OneToMany(() => PostImage, (image) => image.post)
+  contentImages!: PostImage[];
 
-	@OneToMany(() => PostImage, (image) => image.post)
-	contentImages!: PostImage[]
+  @ManyToOne(() => User)
+  postedBy!: User;
 
-	@ManyToOne(() => User, )
-	postedBy!: User;
-	
-	@OneToMany(() => Comment, (comment) => comment.post)
-	comments!: Comment[];
+  @OneToMany(() => Comment, (comment) => comment.post)
+  comments!: Comment[];
 
-	@OneToMany(() => Like, (like) => like.post)
-	likes!: Like[]
+  @OneToMany(() => Like, (like) => like.post)
+  likes!: Like[];
 
+  @Column({
+    type: 'varchar',
+    array: true,
+	default: ["All"]
+  })
+  tags!: string[];
 }
 
-
 @Entity()
-export class PostImage extends Model{
+export class PostImage extends Model {
+  @PrimaryGeneratedColumn('increment')
+  id!: string;
 
-	@PrimaryGeneratedColumn("increment")
-	id!: string;
+  @ManyToOne(() => Post, (post) => post.contentImages)
+  post!: Post;
 
-	@ManyToOne(() => Post, (post) => post.contentImages)
-	post!: Post;
-
-	@Column()
-	url!: string;
-	
+  @Column()
+  url!: string;
 }
 
-
 @Entity()
-export class Comment extends Model{
+export class Comment extends Model {
+  @Column('text')
+  content!: string;
 
-	@Column("text")
-	content!: string;
+  @ManyToOne(() => Post, (post) => post.comments)
+  post!: Post;
 
-	@ManyToOne(() => Post, (post) => post.comments)
-	post!: Post;
-
-	@ManyToOne(() => User)
-	user!: User;
-
-
-
+  @ManyToOne(() => User)
+  user!: User;
 }
 
-
 @Entity()
-export class Like extends Model{
-
-  @PrimaryGeneratedColumn("increment")
+export class Like extends Model {
+  @PrimaryGeneratedColumn('increment')
   id!: string;
 
   @ManyToOne(() => Post, (post) => post.likes)
   post!: Post;
 
-  @ManyToOne(() => User,)
+  @ManyToOne(() => User)
   user!: User;
 
-  @Column("boolean")
+  @Column('boolean')
   liked!: boolean;
 
-  @Column("timestamp")
+  @Column('timestamp')
   likedAt!: Date;
-
 }
-
-
