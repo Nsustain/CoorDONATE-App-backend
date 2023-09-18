@@ -4,7 +4,9 @@ import {
   createChat,
   findChatById,
   findChatByUserId,
+  getTotalRoomCount,
   removeMemberFromChat,
+  updateLastMessage,
 } from '../services/chat.service';
 import { findUserById } from '../services/user.service';
 import {
@@ -57,12 +59,13 @@ class SocketController {
   }
 
   private async initialize() {
-    const limit = await getTotalRoomCount(this.socket.data.user.id);
-    const page = 1;    this.userId = this.socket.data.user.id;
+    this.userId = this.socket.data.user.id;
     await this.joinRooms();
   }
 
   private async joinRooms() {
+    const limit = await getTotalRoomCount(this.socket.data.user.id);
+    const page = 1;    
     const { chats: allRooms, totalCount } = await findChatByUserId(
       this.userId,
       page,
@@ -170,7 +173,7 @@ class SocketController {
       }
 
       // send back the chat history
-      const chatHistory = await getMessagesByChatRoom(chat!);
+      const {messages: chatHistory, totalCount} = await getMessagesByChatRoom(chat!, page, limit);
 
       this.socket.emit('add-success', {
         chatHistory: this.messageSerializer.serializeMany(chatHistory),
@@ -214,7 +217,7 @@ class SocketController {
       newMessage.receiverRoom = chat!;
       newMessage.sender = user!;
 
-      const savedMessage =const savedMessage = await saveMessage(newMessage);
+      const savedMessage = await saveMessage(newMessage);
 
       // update last message in room;
       await updateLastMessage(roomId, savedMessage);
@@ -254,11 +257,6 @@ class SocketController {
 
       await removeMemberFromChat(roomId, this.userId);
 
-      this.socket.to(roomId).emit('left-room', { userId, roomId });
-      return this.socket.emit('leave-success', {
-        message: `${userId} has left the room.`,
-      });
-    } catch (err) {
       // send notifications
       this.notificationSocketController.notify(
         result.user!,
@@ -270,9 +268,8 @@ class SocketController {
         userId: this.userId,
         roomId: roomId,
       });
-
       return this.socket.emit('leave-success', {
-        message: `${this.userId} has left the room.`,
+        message: `${userId} has left the room.`,
       });
     } catch (err) {
       this.socket.emit('leave-error', {
