@@ -38,4 +38,7 @@ export class ChatRoom extends Model {
 
   @OneToMany(() => Message, (message) => message.receiverRoom)
   messages!: Message[];
+
+  @ManyToOne(() => Message, { nullable: true })
+  lastMessage!: Message;
 }

@@ -16,7 +16,6 @@ import { ChatRoom } from './chat.entity';
 import { Message } from './message.entity';
 import { Profile } from './profile.entity';
 import { Notification } from './notification.entity';
-import { Profile } from './profile.entity';
 
 export enum RoleEnumType {
   USER = 'user',
