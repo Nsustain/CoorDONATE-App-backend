@@ -6,6 +6,7 @@ import { Post, PostImage, Comment, Like } from '../entities/post.entity.ts';
 import { ChatRoom } from '../entities/chat.entity.ts';
 import { Message } from '../entities/message.entity.ts';
 import { Profile } from '../entities/profile.entity.ts';
+import { Notification } from '../entities/notification.entity';
 
 const AppDataSource = new DataSource({
   type: 'postgres',
@@ -26,6 +27,7 @@ const AppDataSource = new DataSource({
     ChatRoom,
     Message,
     Profile,
+    Notification,
   ],
   subscribers: [],
   migrations: [],

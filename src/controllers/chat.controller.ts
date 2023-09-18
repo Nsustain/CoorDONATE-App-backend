@@ -14,6 +14,7 @@ import { findUserById } from '../services/user.service';
 
 class ChatController {
   private serializer = new ChatSerializer();
+
   private repository: Repository<ChatRoom> =
     AppDataSource.getRepository(ChatRoom);
 

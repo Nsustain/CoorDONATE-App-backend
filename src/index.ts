@@ -20,6 +20,8 @@ import multarError from './utils/multarError';
 import uploadRouter from './routes/upload.routes';
 import profileRouter from './routes/profile.routes';
 import searchRouter from './routes/search.routes';
+import NotificationSocketController from './websockets/notificationSocketController';
+import notificationRouter from './routes/notification.routes';
 
 require('dotenv').config();
 
@@ -57,6 +59,7 @@ AppDataSource.initialize()
     app.use('/api/upload', uploadRouter);
     app.use('/api/profiles', profileRouter);
     app.use('/api/search', searchRouter);
+    app.use('/api/notifications', notificationRouter);
 
     // UNHANDLED ROUTE
     app.all('*', handle404);
@@ -97,6 +100,9 @@ AppDataSource.initialize()
 
     // Socket Handling
     const socketController = new SocketController(io);
+
+    // Notification socket handler
+    const notificationSocketController = new NotificationSocketController(io);
 
     const port = parseInt(process.env.PORT || '4000', 10);
 
