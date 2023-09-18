@@ -25,7 +25,7 @@ export async function getChatsByUser(req: Request, res: Response, next: NextFunc
     }
 
     // Fetch chats where the user is a member
-    const chats = findChatByUserId(user.id)
+    const chats = findChatByUserId(user.id, 1, 1)
     // Attach the chats to res.locals
     res.locals.chats = chats;
 
