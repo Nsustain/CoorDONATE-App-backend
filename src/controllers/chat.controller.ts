@@ -47,7 +47,6 @@ class ChatController {
         limit
       );
 
-      console.log(chats);
       const totalPages = Math.ceil(totalCount / limit);
 
       res.status(200).json({

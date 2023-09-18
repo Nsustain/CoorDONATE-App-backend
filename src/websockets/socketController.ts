@@ -21,7 +21,6 @@ import AppDataSource from '../config/ormconfig';
 import { ChatSerializer } from '../serializers/chatSerializers';
 import NotificationSocketController from './notificationSocketController';
 import { NotificationType } from '../entities/notification.entity';
-import { User } from '../entities/user.entity';
 
 class SocketController {
   protected io: Server;
@@ -134,8 +133,7 @@ class SocketController {
     try {
       const { roomId } = data;
       const page = parseInt(data.page as string) || 1; // Current page number, default to 1
-      const limit = parseInt(data.limit as string) || 10; // Number of results per page, default to 10
-      const userId = this.socket.data.user.id;
+      const limit = parseInt(data.limit as string) || 20; // Number of results per page, default to 10
 
       let chat = await findChatById(roomId);
 
@@ -174,9 +172,16 @@ class SocketController {
 
       // send back the chat history
       const {messages: chatHistory, totalCount} = await getMessagesByChatRoom(chat!, page, limit);
+      const totalPages = Math.ceil(totalCount / limit);
 
       this.socket.emit('add-success', {
         chatHistory: this.messageSerializer.serializeMany(chatHistory),
+        pagination: {
+          page: page,
+          limit: limit,
+          totalCount: totalCount,
+          totalPages: totalPages,
+        },
       });
 
       // send notification
