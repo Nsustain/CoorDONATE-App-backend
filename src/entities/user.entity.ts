@@ -15,13 +15,7 @@ import { Like, Post } from './post.entity';
 import { ChatRoom } from './chat.entity';
 import { Message } from './message.entity';
 import { Notification } from './notification.entity';
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
 import { Profile } from './profile.entity';
->>>>>>> 5a7579d (feat(notification): entity)
-=======
->>>>>>> 85739c1 (rebase(user.entity))
 
 export enum RoleEnumType {
   USER = 'user',
@@ -97,43 +91,3 @@ export class User extends Model {
     return { ...this, password: undefined, verified: undefined };
   }
 }
-<<<<<<< HEAD
-
-@Entity('profiles')
-export class Profile extends Model {
-  @Column()
-  name!: string;
-
-  @Column({ nullable: true, default: '' })
-  profilePic!: string;
-
-  @Column({ nullable: true })
-  shortBio!: string;
-
-  @Column({ nullable: true })
-  ngoDescription!: string;
-
-  @Column({ nullable: true })
-  numberOfParticipants!: number;
-
-  @Column({ nullable: true, type: 'enum', enum: UserTypeEnum })
-  organizationType!: UserTypeEnum;
-
-  @Column({ nullable: true })
-  previousWork!: string;
-
-  @Column({ nullable: true })
-  goals!: string;
-
-  @Column({ nullable: true })
-  targetAudience!: string;
-
-  @Column({ nullable: true })
-  location!: string;
-
-  @OneToOne(() => User, (user) => user.profile, { nullable: false })
-  @JoinColumn()
-  user!: User;
-}
-=======
->>>>>>> 5a7579d (feat(notification): entity)
