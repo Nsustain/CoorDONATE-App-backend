@@ -16,9 +16,12 @@ import { ChatRoom } from './chat.entity';
 import { Message } from './message.entity';
 import { Notification } from './notification.entity';
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import { Profile } from './profile.entity';
 >>>>>>> 5a7579d (feat(notification): entity)
+=======
+>>>>>>> 85739c1 (rebase(user.entity))
 
 export enum RoleEnumType {
   USER = 'user',
