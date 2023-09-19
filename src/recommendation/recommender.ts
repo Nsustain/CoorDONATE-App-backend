@@ -1,10 +1,12 @@
-// abstract class
+import { Post } from "../entities/post.entity";
+import { User } from "../entities/user.entity";
 
-// tasks
-// input: list of posts
 
-// ranked based approach
+export default abstract class RecommendationSystem {
 
 // abstract function: recommendPosts(user, post[]) -> rankedPosts[]
+    abstract recommendPosts(user: User): Promise<Post[]>;
 
 // abstract function: recommendAccounts(user, accounts[]) -> rankedAccounts[]
+    abstract recommendAccounts(user: User, accounts: User): User[];
+}

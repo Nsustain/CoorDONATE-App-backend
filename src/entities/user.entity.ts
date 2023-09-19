@@ -16,7 +16,6 @@ import { ChatRoom } from './chat.entity';
 import { Message } from './message.entity';
 import { Profile } from './profile.entity';
 import { Notification } from './notification.entity';
-import { Profile } from './profile.entity';
 
 export enum RoleEnumType {
   USER = 'user',
@@ -75,6 +74,9 @@ export class User extends Model {
 
   @OneToMany(() => Notification, (notification) => notification.recipient)
   notifications!: Notification[];
+
+  @ManyToMany(() => Post, (post) => post.seen)
+  seenPosts!: Post[]
 
   @BeforeInsert()
   async hashPassword() {
