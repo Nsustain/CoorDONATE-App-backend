@@ -34,7 +34,7 @@ export class Post extends Model {
   notifications!: Notification[];
 
   @ManyToMany(() => User, (user) => user.seenPosts)
-  seen!: User[]
+  seenBy!: User[]
 }
 
 @Entity()

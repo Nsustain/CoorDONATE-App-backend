@@ -1,9 +1,9 @@
 import config from 'config';
-import { Post, PostImage, Comment, Like } from '../entities/post.entity.ts';
-import AppDataSource from '../config/ormconfig.ts';
-import { signJwt } from '../utils/jwt.ts';
-import { KeyFunction } from '../utils/keyFactory.ts';
-import { User } from '../entities/user.entity.ts';
+import { Post, PostImage, Comment, Like } from '../entities/post.entity';
+import AppDataSource from '../config/ormconfig';
+import { signJwt } from '../utils/jwt';
+import { KeyFunction } from '../utils/keyFactory';
+import { User } from '../entities/user.entity';
 
 const postRepository = AppDataSource.getRepository(Post);
 const imageRepository = AppDataSource.getRepository(PostImage);
@@ -36,22 +36,37 @@ export const deletePost = async (postId: string) => {
   return await postRepository.delete(postId);
 };
 
-export const getUnseenPosts =async (userId: string, amount: number) => {
+export const getUnseenPosts = async (userId: string, amount: number) => {
   // Find the user by userId
-  const user = await userRepository.findOne({ where: {id: userId}, relations: ['seenPosts'] });
-
-  if (!user) {
-    throw new Error('User not found');
-  }
-
-  const seenPostIds = user.seenPosts.map((post) => post.id)
-
-  const unseenPosts = await postRepository
+  try {
+    const user = await userRepository.findOne(
+      { where: {id: userId}, 
+      relations: ['seenPosts'] 
+    });
+  
+    if (!user) {
+      throw new Error('User not found');
+    }
+    
+    const seenPostIds = user.seenPosts.map((post) => post.id)
+    
+    let unseenPosts: Post[];
+    if (seenPostIds.length !== 0){
+      unseenPosts = await postRepository
       .createQueryBuilder('post')
-      .leftJoin('post.seen', 'seen', 'seen.id IN (:...seenPostIds)', { seenPostIds })
-      .where('seen.id IS NULL')
+      .where('post.id NOT IN (:...seenPostIds)', { seenPostIds })
       .take(amount)
       .getMany();
+    }else{
+      unseenPosts = await postRepository
+      .createQueryBuilder('post')
+      .take(amount)
+      .getMany()
+    }
+  
+    return unseenPosts;
+  } catch(err){
+      throw new Error(`Cant get unseen posts ${err}`);
+  }
 
-  return unseenPosts;
 }
