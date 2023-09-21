@@ -22,8 +22,13 @@ import profileRouter from './routes/profile.routes';
 import searchRouter from './routes/search.routes';
 import NotificationSocketController from './websockets/notificationSocketController';
 import notificationRouter from './routes/notification.routes';
+import PassportRouter from './routes/passport.routes';
+import passport from 'passport';
+import expressSession from 'express-session';
 
 require('dotenv').config();
+// passport configuration
+require('./middleware/passport');
 
 AppDataSource.initialize()
   .then(async () => {
@@ -38,6 +43,18 @@ AppDataSource.initialize()
     app.use(express.urlencoded({ extended: true }));
 
     // Logger
+
+
+    // express-session
+    app.use(expressSession({
+      resave: false,
+      saveUninitialized: true,
+      secret: 'SECRET' 
+    }));
+
+    // initialize passport.js
+    app.use(passport.initialize());
+    app.use(passport.session());
 
     // Cookie Parser
     app.use(cookieParser());
@@ -60,6 +77,7 @@ AppDataSource.initialize()
     app.use('/api/profiles', profileRouter);
     app.use('/api/search', searchRouter);
     app.use('/api/notifications', notificationRouter);
+    app.use('/api/auth0', PassportRouter);
 
     // UNHANDLED ROUTE
     app.all('*', handle404);
