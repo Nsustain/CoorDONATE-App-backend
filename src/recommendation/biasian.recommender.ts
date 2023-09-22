@@ -1,6 +1,6 @@
 import { Post } from "../entities/post.entity";
 import { User } from "../entities/user.entity";
-import { getUnseenPosts } from "../services/post.service";
+import { getRandomPosts, getUnseenPosts } from "../services/post.service";
 import { getAllInteractedPostIds, getRandomUsers } from "../services/user.service";
 import RecommendationSystem from "./recommender";
 
@@ -40,6 +40,10 @@ class BiasianRecommender extends RecommendationSystem{
             // posts the current user hasn't posted yet
             const unseenPosts: Post[] = await getUnseenPosts(this.currUserId, this.unseenPostAmount);
             
+            if (this.interactionGrid[this.currUserId].seenPostIds.size === 0){
+                return await getRandomPosts(10)
+            }
+                        
             for(const post of unseenPosts){
                 let total = 0
                 for (const user of this.randomUsers){
@@ -48,7 +52,7 @@ class BiasianRecommender extends RecommendationSystem{
                 const average = total / this.randomUserAmount
                 this.post_probability.set(post.id, average);
             }
-    
+            
             // return top ranked posts
             const sortedEntries = Array.from(this.post_probability.entries()).sort((a, b) => b[1] - a[1]);
             const recommendedPosts = sortedEntries.map(([postId]) => unseenPosts.find((post) => post.id === postId)!);

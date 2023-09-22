@@ -7,8 +7,10 @@ import {
   deletePost,
   getPostById,
   getPostsByUser,
+  markPostAsSeen,
 } from '../services/post.service';
 import AppError from '../utils/appError';
+import BiasianRecommender from '../recommendation/biasian.recommender';
 class PostController {
   private serializer = new PostSerializer();
   private repository: Repository<Post> = AppDataSource.getRepository(Post);
@@ -22,6 +24,26 @@ class PostController {
     });
     res.status(200).json(this.serializer.serializeMany(posts));
   };
+
+  public getRecommendations = async (req: Request, res: Response, next: NextFunction) => {
+
+    try{
+      const userId = res.locals.user.id;
+      const biasianRecommender = new BiasianRecommender(userId);
+
+      const recommendedPosts = await biasianRecommender.recommendPosts(userId);
+
+      // make posts seen
+      for (let post of recommendedPosts){
+        await markPostAsSeen(userId, post.id)
+      }
+
+      res.status(200).json(this.serializer.serializeMany(recommendedPosts));
+
+    }catch(err){
+      next(new AppError(500, `can't get recommendations ${err}`))
+    }
+  }
 
   private async createPost(post: Post): Promise<Post> {
     post = await this.repository.save(this.repository.create(post));
