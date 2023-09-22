@@ -32,6 +32,9 @@ export class Post extends Model {
 
   @ManyToMany(() => Notification, (notification) => notification.pNotification)
   notifications!: Notification[];
+
+  @ManyToMany(() => User, (user) => user.seenPosts)
+  seenBy!: User[]
 }
 
 @Entity()
