@@ -24,7 +24,7 @@ const cookiesOptions: CookieOptions = {
 
 const userSessionRepository = AppDataSource.getRepository(UserSession);
 
-const accessTokenCookieOptions: CookieOptions = {
+export const accessTokenCookieOptions: CookieOptions = {
   ...cookiesOptions,
   expires: new Date(
     Date.now() + AuthConfig.ACCESS_TOKEN_EXPIRES_IN * 60 * 1000
@@ -32,7 +32,7 @@ const accessTokenCookieOptions: CookieOptions = {
   maxAge: AuthConfig.ACCESS_TOKEN_EXPIRES_IN * 60 * 1000,
 };
 
-const refreshTokenCookieOptions: CookieOptions = {
+export const refreshTokenCookieOptions: CookieOptions = {
   ...cookiesOptions,
   expires: new Date(
     Date.now() + AuthConfig.REFRESH_TOKEN_EXPIRES_IN * 60 * 1000
