@@ -5,8 +5,11 @@ import { CreateAuth0User, signTokens } from '../services/user.service';
 import UserSerializer from '../serializers/userSerializer';
 import AppError from '../utils/appError';
 import { accessTokenCookieOptions, refreshTokenCookieOptions } from '../controllers/auth.controller';
+import UserSession from '../entities/user.session';
+import AppDataSource from '../config/ormconfig';
 
 const userSerializer = new UserSerializer();
+const userSessionRepository = AppDataSource.getRepository(UserSession);
 const passportRouter = express.Router();
 
 passportRouter.get('/google', passport.authenticate('google', {
@@ -34,6 +37,14 @@ passportRouter.get('/success', async (req: Request, res: Response, next: NextFun
         // save user to db
         const savedUser = await CreateAuth0User(user);
         const { accessToken, refreshToken } = await signTokens(savedUser);
+
+        const session = new UserSession();
+        session.userId = savedUser.id;
+        session.token = accessToken;
+        session.expiresAt = new Date(Date.now());
+        session.expiresAt.setMonth(session.expiresAt.getMonth() + 6)
+    
+        await userSessionRepository.save(userSessionRepository.create(session));
             
         // Add cookies
         res.cookie('accessToken', accessToken, accessTokenCookieOptions);
