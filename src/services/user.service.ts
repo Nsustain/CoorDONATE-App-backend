@@ -1,5 +1,5 @@
 import config from 'config';
-import { User } from '../entities/user.entity';
+import { SignUpType, User } from '../entities/user.entity';
 import { CreateUserInput } from '../schemas/user.schema';
 import AppDataSource from '../config/ormconfig';
 import { signJwt } from '../utils/jwt';
@@ -76,4 +76,26 @@ export const getAllInteractedPostIds = async (userId: string) => {
     seenPostIds,
     commentedPostIds,
   };
+}
+
+export const CreateAuth0User = async (user: User) => {
+  // if it already exits
+  let existingUser = await userRepository.findOne({
+    where: {
+      auth0_id: user.auth0_id
+    }
+  })
+
+  if (existingUser){
+    return existingUser;
+  }
+
+  // if the email is already used to signup
+  existingUser = await findUserByEmail({email: user.email});
+  
+  if(existingUser){
+    throw new Error('email already in use!')
+  }
+
+  return await AppDataSource.manager.save(AppDataSource.manager.create(User, user)) as User;
 }

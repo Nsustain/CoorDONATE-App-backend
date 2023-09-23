@@ -33,7 +33,7 @@ const deserializeUser = async (
       accessToken,
       KeyFunction.access
     );
-
+    
     if (!decoded) {
       return next(new AppError(401, `Invalid token or user doesn't exist`));
     }
