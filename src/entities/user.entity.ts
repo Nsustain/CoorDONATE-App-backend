@@ -23,6 +23,12 @@ export enum RoleEnumType {
   ADMIN = 'admin',
 }
 
+export enum SignUpType {
+  GOOGLE = 'google',
+  APPLE = 'apple',
+  EMAIL = 'email'
+}
+
 export enum UserTypeEnum {
   LOCAL_NGO = 'Local NGO',
   INTERNATIONAL_NGO = 'International NGO',
@@ -42,7 +48,7 @@ export class User extends Model {
   @Column({ unique: true, nullable: true })
   username!: string;
 
-  @Column()
+  @Column({nullable: true})
   password!: string;
 
   @Column({
@@ -51,6 +57,16 @@ export class User extends Model {
     default: RoleEnumType.USER,
   })
   role!: RoleEnumType.USER;
+
+  @Column({
+    type: 'enum',
+    enum: SignUpType,
+    default: SignUpType.EMAIL
+  })
+  signUpType!: SignUpType;
+
+  @Column({nullable: true, unique: true})
+  auth0_id!: string;
 
   @Column({ default: false })
   verified!: boolean;
@@ -82,7 +98,9 @@ export class User extends Model {
 
   @BeforeInsert()
   async hashPassword() {
-    this.password = await bcrypt.hash(this.password, 12);
+    if (this.password){
+      this.password = await bcrypt.hash(this.password, 12);
+    }
   }
 
   static async comparePasswords(
