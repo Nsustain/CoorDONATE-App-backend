@@ -8,6 +8,7 @@ import {
   ManyToMany,
   OneToOne,
   JoinColumn,
+  JoinTable,
 } from 'typeorm';
 import bcrypt from 'bcryptjs';
 import Model from './model.entity';
@@ -90,6 +91,10 @@ export class User extends Model {
 
   @OneToMany(() => Notification, (notification) => notification.recipient)
   notifications!: Notification[];
+
+  @ManyToMany(() => Post, {cascade: true})
+  @JoinTable()
+  seenPosts!: Post[]
 
   @BeforeInsert()
   async hashPassword() {

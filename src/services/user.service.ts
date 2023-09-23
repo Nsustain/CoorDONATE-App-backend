@@ -44,6 +44,39 @@ export const signTokens = async (user: User) => {
   return { accessToken, refreshToken };
 };
 
+export const getRandomUsers = async (amount: number) => {
+  
+  return await userRepository.createQueryBuilder().orderBy('RANDOM()').take(amount).getMany();
+}
+
+export const getAllInteractedPostIds = async (userId: string) => {
+  const user = await userRepository.findOne({
+    where: {id: userId},
+    relations: ['likedPosts', 'seenPosts', 'posts', 'posts.comments'],
+  });
+
+  if (!user) {
+    throw new Error('User not found');
+  }
+
+  const likedPostIds = new Set<string>();
+  const seenPostIds = new Set<string>();
+  const commentedPostIds = new Set<string>();
+
+  user.likedPosts.forEach((like) => likedPostIds.add(like.post.id));
+  user.seenPosts.forEach((post) => seenPostIds.add(post.id));
+  user.posts.forEach((post) => {
+    if (post.comments.length > 0) {
+      commentedPostIds.add(post.id);
+    }
+  });
+
+  return {
+    likedPostIds,
+    seenPostIds,
+    commentedPostIds,
+  };
+}
 
 export const CreateAuth0User = async (user: User) => {
   // if it already exits
