@@ -1,4 +1,3 @@
-import config from 'config';
 import { CookieOptions, NextFunction, Request, Response } from 'express';
 import { CreateUserInput, LoginUserInput } from '../schemas/user.schema';
 import {
@@ -15,6 +14,10 @@ import UserSession from '../entities/user.session';
 import { KeyFunction } from '../utils/keyFactory';
 import UserSerializer from '../serializers/userSerializer';
 import { AuthConfig } from '../config/authConfig';
+import { generateOTP } from '../utils/generateOTP';
+import sendOTPEmail from '../services/sendOTPEmail.service';
+import { type } from 'os';
+import bcrypt from 'bcryptjs';
 
 const cookiesOptions: CookieOptions = {
   httpOnly: true,
@@ -227,3 +230,135 @@ export const logoutHandler = async (
     next(err);
   }
 };
+
+
+// forgot password controller
+export const forgotPasswordHandler = async (req: Request, res: Response, next: NextFunction) => {
+
+  const {email} = req.body;
+
+  try{
+    const user = await findUserByEmail({email: email});
+
+    if(!user){
+      return next(new AppError(404, 'user not found!'));
+    }
+
+    // generate otp
+    const otp = generateOTP()
+
+    req.session.otp = otp;
+    // Save the session
+    await new Promise<void>((resolve, reject) => {
+      req.session.save((err) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve();
+        }
+      });
+});
+
+    // send otp via email
+    await sendOTPEmail(email, otp);
+
+    res.status(200).json({
+      message: 'OTP send via email, please check it.'
+    })
+
+  }catch(err){
+    next(new AppError(500, `${err}`))
+  }
+}
+
+// verify otp controller
+export const verifyOTPHandler = async (req: Request, res: Response, next: NextFunction) => {
+  const { email, curr_otp } = req.body;
+
+  try {
+    // Check if the user exists
+    const user = await findUserByEmail({ email: email });
+    if (!user) {
+      return next(new AppError(404, 'User not found!'));
+    }
+
+    // Verify the OTP
+    const isOTPValid = (req.session.otp! === curr_otp)
+
+    console.log('isOTPValid', req.session.otp, curr_otp)
+    if (!isOTPValid) {
+      return next(new AppError(400, 'Invalid OTP'));
+    }
+
+    // send Tokens
+    const userSerializer = new UserSerializer();
+    // Sign Access and Refresh Tokens
+
+    const { accessToken, refreshToken } = await signTokens(user);
+
+    // Add cookies
+    res.cookie('accessToken', accessToken, accessTokenCookieOptions);
+    res.cookie('refreshToken', refreshToken, refreshTokenCookieOptions);
+    res.cookie('logged_in', true, {
+      ...accessTokenCookieOptions,
+      httpOnly: false,
+    });
+
+    const current_user = userSerializer.serialize(user)
+
+    const session = new UserSession();
+    session.userId = user.id;
+    session.token = accessToken;
+    session.expiresAt = new Date(Date.now());
+    session.expiresAt.setMonth(session.expiresAt.getMonth() + 6)
+
+    await userSessionRepository.save(userSessionRepository.create(session));
+
+
+    // send response
+    res.status(200).json({
+      status: 'success',
+      message: 'OTP verification successful',
+      accessToken,
+      refreshToken,
+      current_user
+    });
+
+  } catch (err) {
+    next(new AppError(500, `Error verifying OTP: ${err}`));
+  }
+};
+// reset password controller
+export const resetPasswordHandler = async (req: Request, res: Response, next: NextFunction) => {
+  const { email, newPassword } = req.body;
+  const userRepository = AppDataSource.getRepository(User);
+
+  try {
+    // Retrieve the user from the database
+    const user = await findUserByEmail({email: email})
+
+    if (!user) {
+      return next(new Error('User not found'));
+    }
+    // Hash the new password
+    const hashedPassword = await bcrypt.hash(newPassword, 12);
+
+    // Set the new hashed password on the user object
+    user.password = hashedPassword;
+
+    // Save the updated user to the database
+    await userRepository.save(user);
+
+    res.status(200).json({
+      message: 'Password reset successful',
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+// resend otp controller
+export const resendOTPHandler = async (req: Request, res: Response, next: NextFunction) => {
+  
+  await forgotPasswordHandler(req, res, next);
+}
