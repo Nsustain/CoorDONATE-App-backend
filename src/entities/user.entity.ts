@@ -71,6 +71,12 @@ export class User extends Model {
   @Column({ default: false })
   verified!: boolean;
 
+  @Column({nullable: true, type: 'integer'})
+  otp!: number | null;
+
+  @Column({nullable: true, type: 'timestamp'})
+  otpExpriesAt!: Date | null;
+
   @OneToOne(() => Profile, (profile) => profile.user, {
     cascade: true,
     eager: true,
@@ -95,6 +101,15 @@ export class User extends Model {
   @ManyToMany(() => Post, {cascade: true})
   @JoinTable()
   seenPosts!: Post[]
+
+  @BeforeInsert()
+  async setOTPExpiresAt(){
+    if (this.otp) {
+      const expirationTime = 5 * 60 * 1000; // 5 minutes in milliseconds
+      const now = new Date();
+      this.otpExpriesAt = new Date(now.getTime() + expirationTime);
+    }
+  }
 
   @BeforeInsert()
   async hashPassword() {

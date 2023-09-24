@@ -30,6 +30,13 @@ require('dotenv').config();
 // passport configuration
 require('./middleware/passport');
 
+// setup express-session otp
+declare module 'express-session' {
+  interface SessionData {
+    otp?: number; // Adjust the type if necessary
+  }
+}
+
 AppDataSource.initialize()
   .then(async () => {
     console.log('database connected');

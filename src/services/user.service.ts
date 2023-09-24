@@ -99,3 +99,10 @@ export const CreateAuth0User = async (user: User) => {
 
   return await AppDataSource.manager.save(AppDataSource.manager.create(User, user)) as User;
 }
+
+export const setOTP =async (user:User, otp: number) => {
+
+  user.otp = otp;
+  await user.setOTPExpiresAt()
+  return await userRepository.save(user)
+}
