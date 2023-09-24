@@ -4,6 +4,7 @@ import {
   createUser,
   findUserByEmail,
   findUserById,
+  setOTP,
   signTokens,
 } from '../services/user.service';
 import AppError from '../utils/appError';
@@ -26,6 +27,7 @@ const cookiesOptions: CookieOptions = {
 
 
 const userSessionRepository = AppDataSource.getRepository(UserSession);
+const userRepository = AppDataSource.getRepository(User);
 
 export const accessTokenCookieOptions: CookieOptions = {
   ...cookiesOptions,
@@ -247,18 +249,9 @@ export const forgotPasswordHandler = async (req: Request, res: Response, next: N
     // generate otp
     const otp = generateOTP()
 
-    req.session.otp = otp;
-    // Save the session
-    await new Promise<void>((resolve, reject) => {
-      req.session.save((err) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve();
-        }
-      });
-});
-
+    // save to user
+    await setOTP(user, otp);
+    
     // send otp via email
     await sendOTPEmail(email, otp);
 
@@ -273,23 +266,41 @@ export const forgotPasswordHandler = async (req: Request, res: Response, next: N
 
 // verify otp controller
 export const verifyOTPHandler = async (req: Request, res: Response, next: NextFunction) => {
-  const { email, curr_otp } = req.body;
+  const { email, otp: entered_otp } = req.body;
 
   try {
     // Check if the user exists
     const user = await findUserByEmail({ email: email });
+
+    if (!entered_otp){
+      return next(new AppError(400, 'otp is undefined'))
+    }
+
     if (!user) {
       return next(new AppError(404, 'User not found!'));
     }
 
     // Verify the OTP
-    const isOTPValid = (req.session.otp! === curr_otp)
+    const isOTPValid = (user.otp === parseInt(entered_otp))
 
-    console.log('isOTPValid', req.session.otp, curr_otp)
+    // is expired
+    const now = new Date();
+    const isNonExpired = (user.otpExpriesAt && user.otpExpriesAt > now)
+
     if (!isOTPValid) {
       return next(new AppError(400, 'Invalid OTP'));
     }
 
+    if(!isNonExpired){
+      return next(new AppError(400, 'OTP is Expired'))
+    }
+
+    // successful: set otp to null
+    user.otp = null;
+    user.otpExpriesAt = null;
+
+    userRepository.save(user);
+    
     // send Tokens
     const userSerializer = new UserSerializer();
     // Sign Access and Refresh Tokens
