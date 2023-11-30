@@ -51,13 +51,14 @@ AppDataSource.initialize()
 
     // Logger
 
-
     // express-session
-    app.use(expressSession({
-      resave: false,
-      saveUninitialized: true,
-      secret: 'SECRET' 
-    }));
+    app.use(
+      expressSession({
+        resave: false,
+        saveUninitialized: true,
+        secret: 'SECRET',
+      })
+    );
 
     // initialize passport.js
     app.use(passport.initialize());
